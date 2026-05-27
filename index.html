@@ -1,0 +1,2836 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCTV Pro – Cotizador</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f5f6f8;--bg2:#ffffff;--bg3:#ffffff;--bg4:#f1f3f7;
+  --b1:#e5e7eb;--b2:#d1d5db;--b3:#9ca3af;
+  --acc:#dc2626;--acc-h:#b91c1c;--acc-l:#fca5a5;--acc-dim:rgba(220,38,38,.08);--acc-glow:0 0 24px rgba(220,38,38,.18);
+  --grn:#059669;--grn-dim:rgba(5,150,105,.10);
+  --red:#dc2626;--red-dim:rgba(220,38,38,.10);
+  --ylw:#d97706;--ylw-dim:rgba(217,119,6,.10);
+  --prp:#7c3aed;--prp-dim:rgba(124,58,237,.10);
+  --blu:#2563eb;--blu-dim:rgba(37,99,235,.10);
+  --txt:#111827;--txt2:#4b5563;--txt3:#9ca3af;
+  --fh:'Inter',system-ui,-apple-system,sans-serif;--fb:'Inter',system-ui,-apple-system,sans-serif;--fm:'Roboto Mono','Courier New',monospace;
+  --r:6px;--r2:10px;--shad:0 8px 32px rgba(17,24,39,.10);
+}
+html,body,#root{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fb);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+.app{display:flex;height:100vh;overflow:hidden;}
+.sb{width:232px;min-width:232px;background:var(--bg2);border-right:1px solid var(--b1);display:flex;flex-direction:column;}
+.sb-logo{padding:18px 17px 15px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;}
+.logo-ic{width:36px;height:36px;background:var(--acc);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;}
+.logo-t{font-family:var(--fh);font-size:15px;font-weight:800;line-height:1.15;color:var(--txt);}
+.logo-s{font-size:9px;color:var(--txt3);letter-spacing:2px;font-family:var(--fm);}
+.nav{padding:10px 9px;flex:1;overflow-y:auto;}
+.nav-sec{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txt3);font-family:var(--fm);padding:13px 10px 5px;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r);cursor:pointer;font-family:var(--fh);font-size:14px;font-weight:600;color:var(--txt2);transition:all .13s;border:none;background:none;width:100%;text-align:left;margin-bottom:1px;}
+.ni:hover{color:var(--txt);background:var(--bg4);}
+.ni.on{color:var(--acc);background:var(--acc-dim);}
+.ni.on svg{stroke:var(--acc);}
+.main{flex:1;overflow-y:auto;}
+.page{padding:26px 30px;max-width:1180px;}
+.ph{margin-bottom:22px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.pt{font-family:var(--fh);font-size:25px;font-weight:800;color:var(--txt);}
+.pt span{color:var(--acc);}
+.ps{font-size:12px;color:var(--txt2);margin-top:3px;}
+.card{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);padding:19px;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.ct{font-family:var(--fm);font-size:10px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:var(--txt3);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-family:var(--fh);font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .13s;white-space:nowrap;}
+.bp{background:var(--acc);color:#fff;}.bp:hover{background:var(--acc-h);box-shadow:var(--acc-glow);}
+.bg{background:#fff;color:var(--txt2);border:1px solid var(--b2);}.bg:hover{color:var(--txt);background:var(--bg4);border-color:var(--b3);}
+.bd{background:var(--red-dim);color:var(--red);border:1px solid rgba(220,38,38,.25);}.bd:hover{background:rgba(220,38,38,.18);}
+.bgrn{background:var(--grn-dim);color:var(--grn);border:1px solid rgba(5,150,105,.25);}
+.bprp{background:var(--prp-dim);color:var(--prp);border:1px solid rgba(124,58,237,.25);}
+.bblu{background:var(--blu-dim);color:var(--blu);border:1px solid rgba(37,99,235,.25);}
+.bylw{background:var(--ylw-dim);color:var(--ylw);border:1px solid rgba(217,119,6,.25);}
+.bsm{padding:5px 11px;font-size:12px;}
+.bic{padding:7px;width:31px;height:31px;justify-content:center;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.inp,.sel,.ta{background:#fff;border:1px solid var(--b2);border-radius:var(--r);color:var(--txt);font-family:var(--fb);font-size:13px;padding:8px 11px;outline:none;transition:border-color .13s,box-shadow .13s;width:100%;}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(220,38,38,.12);}
+.inp::placeholder{color:var(--txt3);}
+.sel{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+.ta{resize:vertical;min-height:120px;}
+.fl{display:flex;flex-direction:column;}
+.lb{font-size:10px;font-family:var(--fm);text-transform:uppercase;letter-spacing:.8px;color:var(--txt2);margin-bottom:5px;display:block;}
+.gr{display:grid;gap:10px;margin-bottom:10px;}
+.gr2{grid-template-columns:1fr 1fr;}
+.gr3{grid-template-columns:1fr 1fr 1fr;}
+.twrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-family:var(--fm);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt3);padding:9px 12px;border-bottom:1px solid var(--b1);font-weight:500;background:var(--bg4);}
+td{padding:10px 12px;border-bottom:1px solid var(--b1);font-size:13px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(220,38,38,.03);}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--fm);font-weight:500;}
+.bc{background:rgba(220,38,38,.10);color:#b91c1c;}
+.bg2b{background:rgba(217,119,6,.12);color:#b45309;}
+.bst{background:rgba(5,150,105,.12);color:#047857;}
+.bn{background:rgba(124,58,237,.12);color:#6d28d9;}
+.ba{background:rgba(234,88,12,.12);color:#c2410c;}
+.bi{background:rgba(190,18,60,.12);color:#9f1239;}
+.bo{background:var(--bg4);color:var(--txt2);}
+.bblu2{background:rgba(37,99,235,.12);color:#1d4ed8;}
+.ov{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:100;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);padding:12px;}
+.modal{background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:25px;width:560px;max-width:100%;max-height:92vh;overflow-y:auto;box-shadow:var(--shad);animation:popIn .15s ease;}
+.modal-lg{width:720px;}.modal-xl{width:900px;}
+.mt2{font-family:var(--fh);font-size:19px;font-weight:800;color:var(--txt);margin-bottom:17px;}
+.mf{display:flex;justify-content:flex-end;gap:9px;margin-top:17px;flex-wrap:wrap;}
+@keyframes popIn{from{opacity:0;transform:scale(.96) translateY(8px);}to{opacity:1;transform:scale(1);}}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+.sc{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(17,24,39,.04);}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc.bl::before{background:var(--acc)}.sc.gr::before{background:var(--grn)}.sc.yl::before{background:var(--ylw)}.sc.rd::before{background:var(--red)}.sc.pu::before{background:var(--prp)}
+.sl{font-family:var(--fm);font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--txt3);margin-bottom:7px;}
+.sv{font-family:var(--fh);font-size:24px;font-weight:800;color:var(--txt);}
+.ss{font-size:11px;color:var(--txt2);margin-top:2px;}
+.qi{display:grid;grid-template-columns:1fr 78px 118px 33px;gap:7px;align-items:center;padding:9px 11px;background:var(--bg4);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:5px;}
+.tb2{background:var(--bg4);border:1px solid var(--b1);border-radius:var(--r2);padding:13px 17px;}
+.tr2{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;}
+.tr2.fin{border-top:1px solid var(--b2);margin-top:7px;padding-top:10px;font-family:var(--fh);font-size:17px;font-weight:800;color:var(--txt);}
+.sw{position:relative;}
+.sw svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;stroke:var(--txt3);}
+.si{padding-left:33px;}
+.img-upload{border:2px dashed var(--b2);border-radius:var(--r);padding:11px;cursor:pointer;transition:border-color .13s;display:flex;align-items:center;gap:9px;background:var(--bg4);}
+.img-upload:hover{border-color:var(--acc);}
+.img-th{width:40px;height:40px;object-fit:contain;border-radius:5px;border:1px solid var(--b1);background:#fff;}
+.logo-zone{border:2px dashed var(--b2);border-radius:var(--r2);padding:22px;text-align:center;cursor:pointer;transition:all .13s;background:var(--bg4);}
+.logo-zone:hover{border-color:var(--acc);background:var(--acc-dim);}
+::-webkit-scrollbar{width:8px;height:8px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px;}::-webkit-scrollbar-thumb:hover{background:var(--b3);}
+.empty{text-align:center;padding:40px 20px;color:var(--txt3);}
+.fm{font-family:var(--fm);letter-spacing:0.5px;font-variant-numeric:tabular-nums;}.fw6{font-weight:600;}.fw7{font-weight:700;}
+.tc{color:var(--acc);}.tg{color:var(--grn);}.ty{color:var(--ylw);}
+.ts{font-size:12px;}.txs{font-size:11px;}.t2{color:var(--txt2);}.t3{color:var(--txt3);}
+.w100{width:100%;}.mt12{margin-top:12px;}.mb8{margin-bottom:8px;}.mb10{margin-bottom:10px;}
+.mob-toggle{display:none;}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e1e2e 0%,#2d1b1b 100%);padding:20px;}
+.login-box{background:#fff;border-radius:16px;padding:36px 32px;width:400px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.login-logo-ic{width:48px;height:48px;background:var(--acc);border-radius:12px;display:flex;align-items:center;justify-content:center;}
+.login-title{font-family:var(--fh);font-size:22px;font-weight:800;}
+.login-sub{font-size:12px;color:var(--txt3);margin-top:2px;}
+.role-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:var(--fm);}
+.role-admin{background:rgba(220,38,38,.12);color:#b91c1c;}
+.role-installer{background:rgba(37,99,235,.12);color:#1d4ed8;}
+.role-guest{background:rgba(5,150,105,.12);color:#047857;}
+.cart-sidebar{position:fixed;right:0;top:0;bottom:0;width:380px;background:var(--bg2);border-left:1px solid var(--b1);z-index:80;display:flex;flex-direction:column;box-shadow:-4px 0 20px rgba(0,0,0,.1);transform:translateX(100%);transition:transform .25s ease;}
+.cart-sidebar.open{transform:translateX(0);}
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:79;display:none;}
+.cart-overlay.open{display:block;}
+.toast{position:fixed;top:18px;right:18px;padding:11px 18px;border-radius:var(--r);font-size:13px;font-weight:600;z-index:9999;box-shadow:var(--shad);animation:popIn .2s ease;max-width:340px;}
+.toast-ok{background:var(--grn-dim);color:var(--grn);border:1px solid rgba(5,150,105,.3);}
+.toast-err{background:var(--red-dim);color:var(--red);border:1px solid rgba(220,38,38,.3);}
+.toast-info{background:var(--blu-dim);color:var(--blu);border:1px solid rgba(37,99,235,.3);}
+.spinner{width:40px;height:40px;border:3px solid var(--b1);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.prod-card{background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);overflow:hidden;transition:all .15s;}
+.prod-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:var(--acc-glow);}
+.prod-card-img{height:130px;background:var(--bg4);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--b1);}
+.prod-card-body{padding:12px 14px;}
+.prod-card-name{font-family:var(--fh);font-size:13px;font-weight:700;margin-bottom:3px;line-height:1.3;}
+.prod-card-model{font-size:11px;color:var(--txt3);font-family:var(--fm);margin-bottom:8px;}
+.prod-card-price{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--acc);letter-spacing:-0.5px;}
+.cart-btn{width:100%;margin-top:8px;justify-content:center;}
+.floating-cart-btn{position:fixed;bottom:24px;right:24px;z-index:70;width:64px;height:64px;border-radius:50%;background:var(--acc);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(220,38,38,.4);transition:all .2s;font-size:24px;}
+.floating-cart-btn:hover{transform:scale(1.1);box-shadow:0 12px 32px rgba(220,38,38,.5);}
+.floating-cart-badge{position:absolute;top:-4px;right:-4px;background:#fff;color:var(--acc);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;border:3px solid var(--acc);font-family:var(--fm);}
+@media(max-width:980px){.page{padding:20px 22px;}.sg{grid-template-columns:repeat(2,1fr);}.gr3{grid-template-columns:1fr 1fr;}}
+@media(max-width:720px){
+  .app{flex-direction:column;height:100vh;position:relative;}
+  .sb{width:100%;min-width:0;flex-direction:row;border-right:none;border-bottom:1px solid var(--b1);align-items:center;flex-shrink:0;height:54px;padding:0 12px;position:relative;}
+  .sb>div:last-child{display:none;}.sb-logo{padding:0;border:none;flex:1;min-width:0;}
+  .logo-t{font-size:14px;}.logo-ic{width:30px;height:30px;border-radius:7px;}.logo-s{display:none;}
+  .nav{display:none;position:absolute;top:54px;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--b1);box-shadow:var(--shad);z-index:90;padding:10px;flex:none;max-height:calc(100vh - 54px);}
+  .nav.open{display:block;}.nav-sec{display:none;}.ni{padding:11px 13px;font-size:15px;}
+  .mob-toggle{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--b2);background:#fff;border-radius:var(--r);cursor:pointer;color:var(--txt2);}
+  .main{flex:1;overflow-y:auto;}.page{padding:16px 14px;}.pt{font-size:21px;}.ph{margin-bottom:16px;}
+  .card{padding:14px;}.sg{grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:16px;}.sc{padding:12px 14px;}.sv{font-size:20px;}
+  .gr2,.gr3{grid-template-columns:1fr;}
+  .qi{grid-template-columns:1fr 1fr 33px;gap:6px;padding:10px;}.qi>:nth-child(1){grid-column:1/-1;}
+  .modal{padding:18px;}.mt2{font-size:17px;margin-bottom:13px;}.mf{flex-direction:column-reverse;}.mf .btn{width:100%;justify-content:center;}
+  th,td{padding:8px 9px;font-size:12px;}.btn{padding:9px 14px;font-size:13px;}.bsm{padding:6px 10px;font-size:11px;}
+  .filters-row{grid-template-columns:1fr 1fr !important;}.filters-row .sw{grid-column:1/-1;}.filters-row>button{grid-column:1/-1;}
+  .stk-mob{grid-template-columns:1fr !important;}.cart-sidebar{width:100%;}
+  .floating-cart-btn{width:56px;height:56px;bottom:16px;right:16px;font-size:20px;}
+  .floating-cart-badge{width:24px;height:24px;font-size:11px;border-width:2px;}
+}
+@media print{.sb,.no-print,.mob-toggle{display:none!important;}body,.app,.main{background:white!important;color:#111!important;height:auto!important;overflow:visible!important;}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ── CONFIGURACIÓN ─────────────────────────────────────────────────────────────
+// ✅ FIREBASE CONFIGURADO - Proyecto: cctvcristian
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDL-DozN4oIf5v8CI7LywPcX10IBUxFI_A",
+  authDomain: "cctvcristian.firebaseapp.com",
+  projectId: "cctvcristian",
+  storageBucket: "cctvcristian.firebasestorage.app",
+  messagingSenderId: "15277151773",
+  appId: "1:15277151773:web:2635e189f5b285fc24d8f4"
+};
+// Para envío de email: configura en emailjs.com y pega aquí
+window.EMAILJS_CONFIG = {
+  publicKey: "TU_EMAILJS_PUBLIC_KEY",
+  serviceId: "TU_SERVICE_ID",
+  templateId: "TU_TEMPLATE_ID",
+  adminEmail: "tu@correo.com"
+};
+window.USE_FIREBASE = window.FIREBASE_CONFIG.apiKey !== "TU_API_KEY";
+</script>
+<script type="text/babel">
+// ─── CCTV Pro Cotizador — app.js ──────────────────────────────────────────────
+// Arquitectura: React 18 (UMD) + Firebase Firestore/Auth + EmailJS
+// Roles: admin | installer | guest (sin login)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 1 — FIREBASE / STORAGE LAYER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let db = null, fbAuth = null;
+
+function initFirebase() {
+  if (!window.USE_FIREBASE) return;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    db = firebase.firestore();
+    fbAuth = firebase.auth();
+  } catch(e) { console.warn("Firebase init error:", e); window.USE_FIREBASE = false; }
+}
+initFirebase();
+
+// LocalStorage keys (fallback)
+const LS = { products:"cctv:products", quotes:"cctv:quotes", clients:"cctv:clients", company:"cctv:company", users:"cctv:users" };
+
+function lsLoad(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
+}
+function lsSave(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
+// Generic Firestore helpers
+async function fsGet(col) {
+  if (!db) return null;
+  try {
+    const snap = await db.collection(col).get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) { console.warn("fsGet error", e); return null; }
+}
+async function fsSet(col, id, data) {
+  if (!db) return;
+  try { await db.collection(col).doc(id).set(data, { merge: true }); } catch(e) { console.warn("fsSet error", e); }
+}
+async function fsDel(col, id) {
+  if (!db) return;
+  try { 
+    await db.collection(col).doc(id).delete(); 
+    console.log(`✓ Documento eliminado: ${col}/${id}`);
+  } catch(e) { 
+    console.error("fsDel error", e); 
+    throw e;
+  }
+}
+async function fsGetDoc(col, id) {
+  if (!db) return null;
+  try { const d = await db.collection(col).doc(id).get(); return d.exists ? { id: d.id, ...d.data() } : null; } catch { return null; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 2 — CONSTANTES Y HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CATS = ["Cámaras","Grabadores","Almacenamiento","Red","Accesorios","Instalación","Otro"];
+
+const DEF_PRODUCTS = [
+  {id:"p1",category:"Cámaras",name:"Cámara Domo 2MP IP",model:"IPC-HDW2831T",unit:"pza",price:850,image:null,brand:"Dahua",resolution:"2MP",cameraType:"Domo",subcategory:""},
+  {id:"p2",category:"Cámaras",name:"Cámara Bala 4MP IP",model:"IPC-HFW2849S",unit:"pza",price:1100,image:null,brand:"Dahua",resolution:"4MP",cameraType:"Bala",subcategory:""},
+  {id:"p3",category:"Grabadores",name:"NVR 8 canales 4K",model:"NVR2108HS-8P",unit:"pza",price:2400,image:null,brand:"Dahua",resolution:"4K",cameraType:"",subcategory:""},
+  {id:"p4",category:"Grabadores",name:"DVR 16 canales 5MP",model:"XVR5116H",unit:"pza",price:1800,image:null,brand:"Dahua",resolution:"5MP",cameraType:"",subcategory:""},
+  {id:"p5",category:"Almacenamiento",name:"Disco Duro 2TB Surveillance",model:"WD20PURZ",unit:"pza",price:950,image:null,brand:"WD",resolution:"",cameraType:"",subcategory:""},
+  {id:"p6",category:"Red",name:"Switch PoE 8 puertos",model:"CS4210-8P",unit:"pza",price:780,image:null,brand:"",resolution:"",cameraType:"",subcategory:""},
+  {id:"p7",category:"Accesorios",name:"Cable UTP Cat6 100m",model:"CAT6-100",unit:"rollo",price:420,image:null,brand:"",resolution:"",cameraType:"",subcategory:""},
+  {id:"p8",category:"Instalación",name:"Mano de obra por cámara",model:"SERV-CAM",unit:"pza",price:350,image:null,brand:"",resolution:"",cameraType:"",subcategory:""},
+];
+
+const DEF_COMPANY = {
+  name:"Mi Empresa CCTV", slogan:"Seguridad Profesional",
+  phone:"", email:"", address:"", rfc:"", logo:null,
+  defaultTax:16, validityDays:15,
+  paymentTerms:"50% anticipo, 50% contra entrega",
+  footerNote:"Garantía de 12 meses en equipos."
+};
+
+// Usuarios por defecto (solo para modo offline/localStorage)
+const DEF_USERS = [
+  { id:"admin1", email:"admin@cctv.com", password:"Admin123!", name:"Administrador", role:"admin", discount:0, active:true },
+  { id:"inst1",  email:"instalador@cctv.com", password:"Inst123!", name:"Instalador Demo", role:"installer", discount:10, active:true },
+];
+
+const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36);
+const fmt = n => `$${Number(n).toLocaleString("es-MX",{minimumFractionDigits:2})}`;
+const today = () => new Date().toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"});
+const addDays = d => { const dt=new Date(); dt.setDate(dt.getDate()+d); return dt.toLocaleDateString("es-MX",{day:"2-digit",month:"2-digit",year:"numeric"}); };
+const readFileAsDataURL = file => new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result); r.readAsDataURL(file); });
+
+// ── Lógica de precios por rol ─────────────────────────────────────────────────
+// price       = precio instalador (tu costo)
+// pricePublic = precio sugerido al público
+// Admin ve ambos. Instalador/Visitante ven precio público + incremento si aplica.
+const GUEST_MARKUP_PCT = 5;
+
+function getPriceForRole(product, user) {
+  // Si el producto tiene pricePublic úsalo, si no usa price como fallback
+  const hasDualPrice = product.pricePublic && product.pricePublic !== product.price;
+  const pub  = hasDualPrice ? product.pricePublic : product.price;
+  const cost = product.price;
+
+  if (user?.role === "admin") {
+    // Admin: ve precio instalador (costo) Y precio público
+    return { display: cost, publicPrice: pub, isAdmin: true, hasDualPrice };
+  }
+  if (user?.role === "installer") {
+    // Instalador: precio público con su descuento aplicado
+    const disc = user.discount || 0;
+    const markup = user.markup || 0;
+    let final = pub;
+    if (markup > 0) final = final * (1 + markup / 100);
+    if (disc > 0)   final = final * (1 - disc / 100);
+    return { display: final, publicPrice: pub, discountPct: disc, markupPct: markup };
+  }
+  // Visitante: precio público + 5% markup
+  return { display: pub * (1 + GUEST_MARKUP_PCT / 100), publicPrice: pub, markupPct: GUEST_MARKUP_PCT };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 3 — CONTEXTO DE AUTENTICACIÓN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const AuthCtx = createContext(null);
+const useAuth = () => useContext(AuthCtx);
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);       // { id, email, name, role, discount }
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    // Restaurar sesión local
+    const saved = lsLoad("cctv:session", null);
+    if (saved) setUser(saved);
+    setAuthReady(true);
+  }, []);
+
+  const login = async (email, password) => {
+    // Modo Firebase Auth
+    if (window.USE_FIREBASE && fbAuth) {
+      try {
+        const cred = await fbAuth.signInWithEmailAndPassword(email, password);
+        const profile = await fsGetDoc("users", cred.user.uid);
+        if (!profile) throw new Error("Usuario no encontrado en base de datos");
+        if (!profile.active) throw new Error("Usuario desactivado");
+        const u = { id: cred.user.uid, email: cred.user.email, name: profile.name, role: profile.role, discount: profile.discount || 0 };
+        setUser(u); lsSave("cctv:session", u);
+        return { ok: true };
+      } catch(e) { return { ok: false, error: e.message }; }
+    }
+    // Modo localStorage
+    const users = lsLoad(LS.users, DEF_USERS);
+    const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+    if (!found) return { ok: false, error: "Email o contraseña incorrectos" };
+    if (!found.active) return { ok: false, error: "Usuario desactivado" };
+    const u = { id: found.id, email: found.email, name: found.name, role: found.role, discount: found.discount || 0 };
+    setUser(u); lsSave("cctv:session", u);
+    return { ok: true };
+  };
+
+  const logout = () => {
+    if (window.USE_FIREBASE && fbAuth) fbAuth.signOut().catch(()=>{});
+    setUser(null); localStorage.removeItem("cctv:session");
+  };
+
+  return <AuthCtx.Provider value={{ user, authReady, login, logout }}>{children}</AuthCtx.Provider>;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 4 — HOOK DE DATOS (productos, cotizaciones, clientes, empresa, usuarios)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function useData() {
+  const [products, setProductsRaw] = useState([]);
+  const [quotes, setQuotesRaw] = useState([]);
+  const [clients, setClientsRaw] = useState([]);
+  const [company, setCompanyRaw] = useState(DEF_COMPANY);
+  const [users, setUsersRaw] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load all data on mount with real-time listeners
+  useEffect(() => {
+    if (window.USE_FIREBASE && db) {
+      // Real-time listener para productos
+      const unsubProducts = db.collection("products").onSnapshot(snap => {
+        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setProductsRaw(data.length ? data : DEF_PRODUCTS);
+        setLoading(false);
+      }, err => {
+        console.warn("Products listener error:", err);
+        setProductsRaw(DEF_PRODUCTS);
+        setLoading(false);
+      });
+
+      // Real-time listener para cotizaciones
+      const unsubQuotes = db.collection("quotes").onSnapshot(snap => {
+        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setQuotesRaw(data);
+      }, err => console.warn("Quotes listener error:", err));
+
+      // Real-time listener para clientes
+      const unsubClients = db.collection("clients").onSnapshot(snap => {
+        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setClientsRaw(data);
+      }, err => console.warn("Clients listener error:", err));
+
+      // Real-time listener para usuarios
+      const unsubUsers = db.collection("users").onSnapshot(snap => {
+        const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setUsersRaw(data.length ? data : DEF_USERS);
+      }, err => console.warn("Users listener error:", err));
+
+      // Real-time listener para configuración de empresa
+      const unsubCompany = db.collection("config").doc("company").onSnapshot(doc => {
+        setCompanyRaw(doc.exists ? { id: doc.id, ...doc.data() } : DEF_COMPANY);
+      }, err => console.warn("Company listener error:", err));
+
+      // Cleanup: desuscribir listeners cuando el componente se desmonte
+      return () => {
+        unsubProducts();
+        unsubQuotes();
+        unsubClients();
+        unsubUsers();
+        unsubCompany();
+      };
+    } else {
+      // Modo localStorage (sin Firebase)
+      const rawProds = lsLoad(LS.products, DEF_PRODUCTS);
+      setProductsRaw(rawProds);
+      setQuotesRaw(lsLoad(LS.quotes, []));
+      setClientsRaw(lsLoad(LS.clients, []));
+      setCompanyRaw(lsLoad(LS.company, DEF_COMPANY));
+      setUsersRaw(lsLoad(LS.users, DEF_USERS));
+      setLoading(false);
+    }
+  }, []);
+
+  // Persist helpers
+  const setProducts = useCallback(async (val) => {
+    const list = typeof val === "function" ? val(products) : val;
+    console.log("💾 setProducts llamado con", list.length, "productos");
+    console.log("💾 USE_FIREBASE:", window.USE_FIREBASE);
+    console.log("💾 db existe:", !!db);
+    
+    if (window.USE_FIREBASE && db) {
+      // Con listeners en tiempo real, solo guardamos en Firebase
+      // El listener actualizará automáticamente el estado
+      console.log("💾 Guardando en Firebase...");
+      try {
+        await Promise.all(list.map(p => {
+          console.log("💾 Guardando producto:", p.id, p.name);
+          return fsSet("products", p.id, p);
+        }));
+        console.log("✅ Todos los productos guardados en Firebase");
+      } catch(e) {
+        console.error("❌ Error guardando en Firebase:", e);
+        throw e;
+      }
+    } else { 
+      console.log("💾 Guardando en localStorage...");
+      setProductsRaw(list);
+      lsSave(LS.products, list); 
+      console.log("✅ Productos guardados en localStorage");
+    }
+  }, [products]);
+
+  const deleteProduct = useCallback(async (id) => {
+    if (window.USE_FIREBASE && db) { 
+      // Con listeners en tiempo real, solo eliminamos de Firebase
+      // El listener actualizará automáticamente el estado
+      await fsDel("products", id); 
+    } else { 
+      const list = products.filter(p => p.id !== id);
+      setProductsRaw(list);
+      lsSave(LS.products, list); 
+    }
+  }, [products]);
+
+  const setQuotes = useCallback(async (val) => {
+    const list = typeof val === "function" ? val(quotes) : val;
+    if (window.USE_FIREBASE && db) {
+      await Promise.all(list.map(q => fsSet("quotes", q.id, q)));
+    } else { 
+      setQuotesRaw(list);
+      lsSave(LS.quotes, list); 
+    }
+  }, [quotes]);
+
+  const deleteQuote = useCallback(async (id) => {
+    if (window.USE_FIREBASE && db) { 
+      await fsDel("quotes", id); 
+    } else { 
+      const list = quotes.filter(q => q.id !== id);
+      setQuotesRaw(list);
+      lsSave(LS.quotes, list); 
+    }
+  }, [quotes]);
+
+  const setClients = useCallback(async (val) => {
+    const list = typeof val === "function" ? val(clients) : val;
+    if (window.USE_FIREBASE && db) {
+      await Promise.all(list.map(c => fsSet("clients", c.id, c)));
+    } else { 
+      setClientsRaw(list);
+      lsSave(LS.clients, list); 
+    }
+  }, [clients]);
+
+  const deleteClient = useCallback(async (id) => {
+    if (window.USE_FIREBASE && db) { 
+      await fsDel("clients", id); 
+    } else { 
+      const list = clients.filter(c => c.id !== id);
+      setClientsRaw(list);
+      lsSave(LS.clients, list); 
+    }
+  }, [clients]);
+
+  const setCompany = useCallback(async (val) => {
+    if (window.USE_FIREBASE && db) { 
+      await fsSet("config", "company", val); 
+    } else { 
+      setCompanyRaw(val);
+      lsSave(LS.company, val); 
+    }
+  }, []);
+
+  const setUsers = useCallback(async (val) => {
+    const list = typeof val === "function" ? val(users) : val;
+    if (window.USE_FIREBASE && db) {
+      await Promise.all(list.map(u => fsSet("users", u.id, u)));
+    } else { 
+      setUsersRaw(list);
+      lsSave(LS.users, list); 
+    }
+  }, [users]);
+
+  const deleteUser = useCallback(async (id) => {
+    if (window.USE_FIREBASE && db) { 
+      await fsDel("users", id); 
+    } else { 
+      const list = users.filter(u => u.id !== id);
+      setUsersRaw(list);
+      lsSave(LS.users, list); 
+    }
+  }, [users]);
+
+  return {
+    products, setProducts, deleteProduct,
+    quotes, setQuotes, deleteQuote,
+    clients, setClients, deleteClient,
+    company, setCompany,
+    users, setUsers, deleteUser,
+    loading
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 5 — ICONOS SVG
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const Ic = ({d, s=17, fill="none", stroke="currentColor"}) =>
+  <svg width={s} height={s} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+    <path d={d}/>
+  </svg>;
+
+const I = {
+  dash:"M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10",
+  inv:"M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z M16 3H8L6 7h12l-2-4z",
+  quote:"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8",
+  plus:"M12 5v14 M5 12h14",
+  trash:"M3 6h18 M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6 M9 6V4h6v2",
+  edit:"M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7 M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z",
+  eye:"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z",
+  check:"M20 6L9 17l-5-5",
+  cam:"M23 7l-7 5 7 5V7z M1 5h15a2 2 0 012 2v10a2 2 0 01-2 2H1a2 2 0 01-2-2V7a2 2 0 012-2z",
+  search:"M11 19a8 8 0 100-16 8 8 0 000 16z M21 21l-4.35-4.35",
+  users:"M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75",
+  settings:"M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z",
+  img:"M21 19a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2z M8.5 10a1.5 1.5 0 100-3 1.5 1.5 0 000 3z M21 15l-5-5L5 21",
+  x:"M18 6L6 18 M6 6l12 12",
+  pdf:"M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M9 15v-4 M12 15v-6 M15 15v-2",
+  upload:"M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4 M17 8l-5-5-5 5 M12 3v12",
+  download:"M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4 M7 10l5 5 5-5 M12 15V3",
+  back:"M19 12H5 M12 19l-7-7 7-7",
+  arrow:"M9 18l6-6-6-6",
+  cart:"M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z M3 6h18 M16 10a4 4 0 01-8 0",
+  logout:"M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4 M16 17l5-5-5-5 M21 12H9",
+  lock:"M19 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2z M7 11V7a5 5 0 0110 0v4",
+  mail:"M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6",
+  user:"M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z",
+  tag:"M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z M7 7h.01",
+  percent:"M19 5L5 19 M6.5 6.5h.01 M17.5 17.5h.01",
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 6 — COMPONENTES UI REUTILIZABLES
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const Modal = ({onClose, children, wide, xl}) => (
+  <div className="ov" onClick={e => e.target === e.currentTarget && onClose()}>
+    <div className={`modal${xl?" modal-xl":wide?" modal-lg":""}`}>{children}</div>
+  </div>
+);
+
+function Toast({msg, type="ok", onDone}) {
+  useEffect(() => { const t = setTimeout(onDone, 3500); return () => clearTimeout(t); }, []);
+  return <div className={`toast toast-${type}`}>{msg}</div>;
+}
+
+function useToast() {
+  const [toast, setToast] = useState(null);
+  const show = (msg, type="ok") => setToast({msg, type, key: Date.now()});
+  const el = toast ? <Toast key={toast.key} msg={toast.msg} type={toast.type} onDone={() => setToast(null)}/> : null;
+  return [el, show];
+}
+
+function ImgUpload({value, onChange}) {
+  const ref = useRef();
+  const handle = async e => { const f = e.target.files[0]; if(f) onChange(await readFileAsDataURL(f)); };
+  return (
+    <div>
+      <input ref={ref} type="file" accept="image/*" style={{display:"none"}} onChange={handle}/>
+      {value ? (
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <img src={value} className="img-th" style={{width:58,height:58}}/>
+          <div>
+            <button className="btn bg bsm" style={{display:"block",marginBottom:6}} onClick={()=>ref.current.click()}><Ic d={I.img} s={13}/>Cambiar</button>
+            <button className="btn bd bsm" onClick={()=>onChange(null)}><Ic d={I.x} s={13}/>Quitar</button>
+          </div>
+        </div>
+      ) : (
+        <div className="img-upload" onClick={()=>ref.current.click()}>
+          <Ic d={I.img} s={20}/><span style={{fontSize:12,color:"var(--txt2)"}}>Click para agregar imagen (opcional)</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const catCls = {Cámaras:"bc",Grabadores:"bg2b",Almacenamiento:"bst",Red:"bn",Accesorios:"ba",Instalación:"bi"};
+const CatBadge = ({cat}) => <span className={`badge ${catCls[cat]||"bo"}`}>{cat}</span>;
+
+const RoleBadge = ({role}) => {
+  const map = { admin:{cls:"role-admin",label:"Administrador"}, installer:{cls:"role-installer",label:"Instalador"}, guest:{cls:"role-guest",label:"Visitante"} };
+  const r = map[role] || map.guest;
+  return <span className={`role-badge ${r.cls}`}>{r.label}</span>;
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 7 — EXCEL IMPORT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const normCat = c => {
+  const x = (c||"").toString().toLowerCase();
+  if(x.includes("cámar")||x.includes("camar")) return "Cámaras";
+  if(x.includes("dvr")||x.includes("nvr")||x.includes("grabador")) return "Grabadores";
+  if(x.includes("disco")||x.includes("almacen")||x.includes("hdd")||x.includes("storage")) return "Almacenamiento";
+  if(x.includes("red")||x.includes("switch")||x.includes("router")||x.includes("network")) return "Red";
+  if(x.includes("accesor")||x.includes("cable")||x.includes("fuente")) return "Accesorios";
+  if(x.includes("instal")||x.includes("servic")||x.includes("mano de obra")) return "Instalación";
+  return "Otro";
+};
+const findCol = (headers, ...needles) => {
+  for(let i=0;i<headers.length;i++){
+    const h=(headers[i]||"").toString().toLowerCase().trim();
+    for(const n of needles){ if(h.includes(n)) return i; }
+  }
+  return -1;
+};
+const extractRes = name => { const m=(name||"").toString().match(/\b(\d+(?:\.\d+)?\s*MP|4K|8K|2K|1080[pP]|720[pP]|960H|4MP|2MP)\b/i); return m?m[1].toUpperCase().replace(/\s+/g,""):""; };
+const extractCamType = (sub, name) => {
+  const src=((sub||"")+" "+(name||"")).toLowerCase();
+  const m=src.match(/tipo\s+([a-záéíóúñ]+)/i);
+  if(m){const t=m[1];return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}
+  for(const t of ["Bala","Domo","Bullet","PTZ","Turret","Fisheye","Panorámica","Mini","Cubo","Eyeball"]){if(src.includes(t.toLowerCase()))return t;}
+  return "";
+};
+const uniqVals = (arr, key) => [...new Set(arr.map(x=>(x[key]||"").toString().trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+
+function parseWorkbook(wb) {
+  const out=[]; const seen=new Set();
+  let sheets=wb.SheetNames;
+  const fullIdx=sheets.find(n=>{const ws=wb.Sheets[n];const rows=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});return rows[0]&&rows[0].some(h=>(h||"").toString().toLowerCase().includes("categoría principal")||(h||"").toString().toLowerCase().includes("categoria principal"));});
+  if(fullIdx) sheets=[fullIdx];
+  
+  // Extraer imágenes del workbook si existen
+  const imageMap = new Map();
+  try {
+    for(const sn of sheets){
+      const ws=wb.Sheets[sn];
+      // Intentar extraer imágenes embebidas (si SheetJS las soporta)
+      if(ws['!images']) {
+        ws['!images'].forEach((img, idx) => {
+          if(img.data) {
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(img.data)));
+            const ext = img.type || 'png';
+            imageMap.set(`${sn}_${idx}`, `data:image/${ext};base64,${base64}`);
+          }
+        });
+      }
+    }
+  } catch(e) { console.warn("No se pudieron extraer imágenes:", e); }
+  
+  for(const sn of sheets){
+    const ws=wb.Sheets[sn];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false});
+    if(rows.length<2) continue;
+    const headers=rows[0].map(h=>(h||"").toString());
+    const ci={
+      name:findCol(headers,"nombre","producto","descripción","descripcion"),
+      cat:findCol(headers,"categoría principal","categoria principal","categoría","categoria"),
+      sub:findCol(headers,"subcategoría","subcategoria"),
+      brand:findCol(headers,"marca","brand","fabricante"),
+      model:findCol(headers,"modelo","sku","código","codigo","ref"),
+      price:findCol(headers,"precio (cop)","precio cop","precio","price"),
+      unit:findCol(headers,"unidad","unit"),
+      image:findCol(headers,"imagen","image","foto","picture","img"),
+    };
+    if(ci.name<0||ci.price<0) continue;
+    for(let r=1;r<rows.length;r++){
+      const row=rows[r]; if(!row||!row.length) continue;
+      const name=(row[ci.name]||"").toString().trim();
+      const priceRaw=row[ci.price];
+      if(!name) continue;
+      const price=typeof priceRaw==="number"?priceRaw:parseFloat((priceRaw||"").toString().replace(/[^\d.,-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."))||0;
+      const catSrc=ci.cat>=0?row[ci.cat]:sn;
+      const category=normCat(catSrc);
+      const brand=ci.brand>=0?(row[ci.brand]||"").toString().trim():"";
+      const sub=ci.sub>=0?(row[ci.sub]||"").toString().trim():"";
+      const modelExplicit=ci.model>=0?(row[ci.model]||"").toString().trim():"";
+      const model=modelExplicit||[brand,sub].filter(Boolean).join(" · ");
+      const unit=(ci.unit>=0&&row[ci.unit])?row[ci.unit].toString().trim():"pza";
+      const resolution=extractRes(name);
+      const cameraType=category==="Cámaras"?extractCamType(sub,name):"";
+      
+      // Intentar obtener imagen de la columna o del mapa de imágenes
+      let image = null;
+      if(ci.image>=0 && row[ci.image]) {
+        const imgVal = row[ci.image].toString().trim();
+        // Si es una URL, usarla directamente
+        if(imgVal.startsWith('http') || imgVal.startsWith('data:')) {
+          image = imgVal;
+        }
+      }
+      // Si no hay imagen en columna, intentar del mapa (primera imagen disponible para esta fila)
+      if(!image && imageMap.size > 0) {
+        const imgKey = `${sn}_${r-1}`;
+        if(imageMap.has(imgKey)) {
+          image = imageMap.get(imgKey);
+        }
+      }
+      
+      const key=name.toLowerCase();
+      if(seen.has(key)) continue;
+      seen.add(key);
+      out.push({name,model,brand,subcategory:sub,resolution,cameraType,category,unit,price,image});
+    }
+  }
+  return out;
+}
+
+function ImportExcelModal({existing, onConfirm, onClose}) {
+  const [parsed,setParsed]=useState(null);
+  const [err,setErr]=useState("");
+  const [busy,setBusy]=useState(false);
+  const ref=useRef();
+  const handle=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    setBusy(true); setErr("");
+    try{
+      const buf=await f.arrayBuffer();
+      const wb=XLSX.read(buf,{type:"array"});
+      const items=parseWorkbook(wb);
+      if(items.length===0){setErr("No se encontraron filas válidas. Revisa que el Excel tenga columnas Nombre y Precio.");setBusy(false);return;}
+      const exMap=new Map(existing.map(p=>[p.name.trim().toLowerCase(),p]));
+      const toAdd=[],toUpdate=[];
+      for(const it of items){
+        const k=it.name.toLowerCase();
+        if(exMap.has(k)) toUpdate.push({...exMap.get(k),...it,id:exMap.get(k).id,image:exMap.get(k).image||it.image});
+        else toAdd.push(it);
+      }
+      setParsed({items,toAdd,toUpdate});
+    }catch(ex){setErr("Error al leer el archivo: "+ex.message);}
+    setBusy(false);
+  };
+  const doConfirm=()=>{
+    const exMap=new Map(existing.map(p=>[p.name.trim().toLowerCase(),p]));
+    const updated=existing.map(p=>{const m=parsed.toUpdate.find(u=>u.id===p.id);return m?m:p;});
+    const added=parsed.toAdd.map(it=>({id:uid(),...it}));
+    onConfirm([...updated,...added],{added:added.length,updated:parsed.toUpdate.length});
+  };
+  return (
+    <Modal onClose={onClose} wide={true}>
+      <div className="mt2">Importar Catálogo desde Excel</div>
+      <div style={{fontSize:12,color:"var(--txt2)",marginBottom:14,lineHeight:1.6}}>
+        Sube un archivo <b>.xlsx</b> con columnas: <code style={{color:"var(--acc)"}}>Nombre del Producto</code>, <code style={{color:"var(--acc)"}}>Categoría Principal</code>, <code style={{color:"var(--acc)"}}>Precio</code>.<br/>
+        <b>Opcional:</b> Agrega una columna <code style={{color:"var(--acc)"}}>Imagen</code> con URLs de imágenes (http:// o https://) o imágenes embebidas en el Excel.<br/>
+        Los productos con el mismo nombre se <b style={{color:"var(--ylw)"}}>actualizan</b>. Los nuevos se <b style={{color:"var(--grn)"}}>agregan</b>.
+      </div>
+      <input ref={ref} type="file" accept=".xlsx,.xls,.xlsm" style={{display:"none"}} onChange={handle}/>
+      {!parsed&&(
+        <div className="logo-zone" onClick={()=>!busy&&ref.current.click()} style={{padding:"30px 20px"}}>
+          <Ic d={I.upload} s={32}/><div style={{fontSize:13,color:"var(--txt)",marginTop:10,fontWeight:600}}>{busy?"Procesando...":"Click para seleccionar archivo Excel"}</div>
+          <div style={{fontSize:11,color:"var(--txt3)",marginTop:4}}>.xlsx, .xls, .xlsm</div>
+        </div>
+      )}
+      {err&&<div style={{padding:"10px 14px",background:"var(--red-dim)",color:"var(--red)",borderRadius:"var(--r)",fontSize:12,marginTop:10}}>{err}</div>}
+      {parsed&&(
+        <>
+          <div className="sg" style={{gridTemplateColumns:"1fr 1fr 1fr",marginBottom:14}}>
+            <div className="sc bl"><div className="sl">Detectados</div><div className="sv">{parsed.items.length}</div><div className="ss">filas válidas</div></div>
+            <div className="sc gr"><div className="sl">Nuevos</div><div className="sv">{parsed.toAdd.length}</div><div className="ss">se agregarán</div></div>
+            <div className="sc yl"><div className="sl">Existentes</div><div className="sv">{parsed.toUpdate.length}</div><div className="ss">se actualizarán</div></div>
+          </div>
+          <div className="twrap" style={{maxHeight:260,overflowY:"auto",border:"1px solid var(--b1)",borderRadius:"var(--r)"}}>
+            <table>
+              <thead style={{position:"sticky",top:0,background:"var(--bg2)"}}>
+                <tr><th>Acción</th><th>Producto</th><th>Categoría</th><th style={{textAlign:"right"}}>Precio</th></tr>
+              </thead>
+              <tbody>
+                {parsed.toAdd.slice(0,60).map((it,i)=>(
+                  <tr key={"a"+i}><td><span className="badge bst" style={{fontSize:10}}>NUEVO</span></td>
+                  <td><div className="fw6">{it.name}</div>{it.model&&<div className="txs t3">{it.model}</div>}</td>
+                  <td><CatBadge cat={it.category}/></td>
+                  <td className="fm fw6 tc" style={{textAlign:"right"}}>{fmt(it.price)}</td></tr>
+                ))}
+                {parsed.toUpdate.slice(0,60).map((it,i)=>(
+                  <tr key={"u"+i}><td><span className="badge bg2b" style={{fontSize:10}}>ACTUALIZA</span></td>
+                  <td><div className="fw6">{it.name}</div>{it.model&&<div className="txs t3">{it.model}</div>}</td>
+                  <td><CatBadge cat={it.category}/></td>
+                  <td className="fm fw6 tc" style={{textAlign:"right"}}>{fmt(it.price)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      <div className="mf">
+        <button className="btn bg" onClick={onClose}>Cancelar</button>
+        {parsed&&<button className="btn bg" onClick={()=>{setParsed(null);setErr("");}}>Otro archivo</button>}
+        {parsed&&<button className="btn bp" onClick={doConfirm}><Ic d={I.check} s={14}/>Confirmar e importar</button>}
+      </div>
+    </Modal>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 8 — GENERACIÓN DE PDF
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function buildPDFHtml(quote, company) {
+  const sub = quote.items.reduce((s,i) => s + i.qty * i.unitPrice, 0);
+  const discountAmt = quote.discountPct > 0 ? sub * (quote.discountPct / 100) : (quote.discount || 0);
+  const taxAmt = (sub - discountAmt) * (quote.tax / 100);
+  const total = sub - discountAmt + taxAmt + (quote.shipping || 0);
+  const fn = n => `$${Number(n).toLocaleString("es-MX",{minimumFractionDigits:2})}`;
+  const qid = quote.id.slice(-6).toUpperCase();
+  const docType = quote.docType || "quote";
+  const docLabel = docType === "invoice" ? "Factura" : "Cotización";
+  const docNumber = docType === "invoice" && quote.invoiceNumber ? quote.invoiceNumber : `#${qid}`;
+  const rows = quote.items.map((it,idx) => `
+    <tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:center;color:#6b7280;font-size:11px;">${idx+1}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${it.image?`<img src="${it.image}" style="width:32px;height:32px;object-fit:contain;border-radius:3px;border:1px solid #e5e7eb;flex-shrink:0;background:#fff;">`:`<div style="width:32px;height:32px;background:#f1f5f9;border:1px solid #e5e7eb;border-radius:3px;flex-shrink:0;"></div>`}
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;font-weight:600;color:#111827;margin-bottom:1px;">${it.name}</div>
+            ${it.model?`<div style="font-size:10px;color:#9ca3af;">${it.model}</div>`:""}
+          </div>
+        </div>
+      </td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:center;font-family:'Courier New',monospace;font-size:11px;color:#374151;">${it.qty}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:center;font-size:10px;color:#6b7280;">${it.unit}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'Courier New',monospace;font-size:11px;color:#374151;">${fn(it.unitPrice)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-family:'Courier New',monospace;font-size:12px;font-weight:700;color:#dc2626;">${fn(it.qty*it.unitPrice)}</td>
+    </tr>`).join("");
+
+  return `<!doctype html><html lang="es"><head><meta charset="UTF-8">
+  <title>${docLabel} ${docNumber} – ${company.name}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:12px;color:#1f2937;background:#f9fafb;line-height:1.5;}
+    @page{margin:12mm 10mm;size:A4;}
+    @media print{.no-print{display:none!important;}body{background:#fff;}}
+    .wrap{max-width:100%;margin:0 auto;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+    .header{display:grid;grid-template-columns:1fr auto;gap:16px;padding:16px 20px;background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%);color:#fff;margin-bottom:16px;box-shadow:0 2px 4px rgba(220,38,38,0.2);}
+    .co-name{font-size:18px;font-weight:800;margin-bottom:3px;text-shadow:0 1px 2px rgba(0,0,0,0.1);}
+    .co-info{font-size:9px;opacity:0.95;line-height:1.6;}
+    .q-box{text-align:right;}
+    .q-label{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;opacity:0.85;margin-bottom:3px;}
+    .q-num{font-size:22px;font-weight:800;font-family:'Courier New',monospace;margin-bottom:3px;text-shadow:0 1px 2px rgba(0,0,0,0.1);}
+    .q-date{font-size:9px;opacity:0.95;}
+    .client-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;padding:0 4px;}
+    .info-box{background:linear-gradient(to bottom,#f8fafc 0%,#f1f5f9 100%);border:1px solid #e2e8f0;border-left:3px solid #dc2626;border-radius:4px;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+    .info-label{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;color:#64748b;margin-bottom:5px;}
+    .info-name{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:3px;}
+    .info-detail{font-size:10px;color:#475569;line-height:1.6;}
+    table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:11px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+    thead{background:linear-gradient(to bottom,#dc2626 0%,#b91c1c 100%);border-top:3px solid #991b1b;}
+    thead th{padding:8px 8px;font-size:9px;letter-spacing:0.8px;text-transform:uppercase;font-weight:700;color:#fff;text-align:left;text-shadow:0 1px 1px rgba(0,0,0,0.2);}
+    thead th.center{text-align:center;}
+    thead th.right{text-align:right;}
+    tbody tr{transition:background 0.2s;}
+    tbody tr:nth-child(even){background:#f9fafb;}
+    tbody tr:hover{background:#fef2f2;}
+    tbody tr:last-child td{border-bottom:2px solid #dc2626;}
+    .summary{display:flex;justify-content:flex-end;margin-bottom:14px;padding:0 4px;}
+    .summary-box{width:250px;border:2px solid #e5e7eb;border-radius:6px;overflow:hidden;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,0.08);}
+    .sum-row{display:flex;justify-content:space-between;padding:6px 12px;font-size:11px;border-bottom:1px solid #f1f5f9;background:#fafafa;}
+    .sum-row:last-child{border:none;}
+    .sum-label{color:#64748b;font-weight:500;}
+    .sum-value{font-family:'Courier New',monospace;font-weight:700;color:#1f2937;}
+    .sum-discount{color:#059669;font-weight:600;}
+    .sum-total{background:linear-gradient(135deg,#dc2626 0%,#b91c1c 100%);color:#fff;font-size:14px;font-weight:800;padding:9px 12px;text-shadow:0 1px 2px rgba(0,0,0,0.2);box-shadow:inset 0 1px 0 rgba(255,255,255,0.1);}
+    .notes-box{background:linear-gradient(to bottom,#fffbeb 0%,#fef3c7 100%);border:2px solid #fbbf24;border-left:4px solid #f59e0b;border-radius:6px;padding:14px 16px;margin:16px 4px 12px 4px;min-height:120px;box-shadow:0 2px 4px rgba(251,191,36,0.15);}
+    .notes-label{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;color:#92400e;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .notes-text{font-size:11px;color:#78350f;line-height:1.8;white-space:pre-wrap;font-weight:500;}
+    .footer{text-align:center;font-size:9px;color:#9ca3af;padding:10px 0;border-top:2px solid #e5e7eb;margin-top:8px;background:#f9fafb;}
+    .print-btn{position:fixed;top:12px;right:12px;background:linear-gradient(135deg,#dc2626 0%,#b91c1c 100%);color:#fff;border:none;padding:10px 18px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:700;box-shadow:0 4px 12px rgba(220,38,38,0.3);transition:all 0.2s;}
+    .print-btn:hover{background:linear-gradient(135deg,#b91c1c 0%,#991b1b 100%);box-shadow:0 6px 16px rgba(220,38,38,0.4);transform:translateY(-1px);}
+  </style></head><body>
+  <button class="print-btn no-print" onclick="window.print()">🖨 Imprimir / PDF</button>
+  <div class="wrap">
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        ${company.logo?`<img src="${company.logo}" style="height:50px;width:auto;max-width:85px;object-fit:contain;background:#fff;padding:5px;border-radius:5px;box-shadow:0 2px 4px rgba(0,0,0,0.1);">`:`<div style="width:44px;height:44px;background:#fff;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 4px rgba(0,0,0,0.1);"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>`}
+        <div style="flex:1;">
+          <div class="co-name">${company.name}</div>
+          ${company.slogan?`<div style="font-size:9px;opacity:0.9;margin-bottom:3px;">${company.slogan}</div>`:""}
+          <div class="co-info">
+            ${[company.phone&&`📞 ${company.phone}`,company.email&&`${company.email}`].filter(Boolean).join(" · ")}
+            ${company.address?` · ${company.address}`:""}${company.rfc?` · RFC: ${company.rfc}`:""}
+          </div>
+        </div>
+      </div>
+      <div class="q-box">
+        <div class="q-label">${docLabel}</div>
+        <div class="q-num">${docNumber}</div>
+        <div class="q-date">${quote.date}${docType === "quote" && quote.validUntil ? ` · Válida: ${quote.validUntil}` : ""}</div>
+      </div>
+    </div>
+    
+    <div class="client-row">
+      <div class="info-box">
+        <div class="info-label">Cliente</div>
+        <div class="info-name">${quote.clientName}</div>
+        <div class="info-detail">
+          ${[quote.clientPhone,quote.clientEmail].filter(Boolean).join(" · ")}
+          ${quote.clientAddress?`<br>${quote.clientAddress}`:""}
+          ${quote.clientRFC?`<br>RFC: ${quote.clientRFC}`:""}
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">Condiciones Comerciales</div>
+        <div class="info-detail">
+          ${company.paymentTerms?`<strong>Pago:</strong> ${company.paymentTerms}<br>`:""}
+          <strong>IVA:</strong> ${quote.tax}%
+          ${discountAmt>0?` · <strong>Descuento:</strong> ${quote.discountPct>0?quote.discountPct+"%":fn(discountAmt)}`:""}
+          ${docType === "quote" && quote.validUntil?`<br><strong>Vigencia:</strong> ${quote.validUntil}`:""}
+        </div>
+      </div>
+    </div>
+    
+    <table>
+      <thead><tr>
+        <th style="width:30px;text-align:center;">#</th>
+        <th style="width:42%;">Descripción</th>
+        <th class="center" style="width:50px;">Cant.</th>
+        <th class="center" style="width:50px;">Unidad</th>
+        <th class="right" style="width:80px;">P. Unit.</th>
+        <th class="right" style="width:90px;">Importe</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    
+    <div class="summary">
+      <div class="summary-box">
+        <div class="sum-row"><span class="sum-label">Subtotal</span><span class="sum-value">${fn(sub)}</span></div>
+        ${discountAmt>0?`<div class="sum-row"><span class="sum-label sum-discount">Descuento${quote.discountPct>0?" ("+quote.discountPct+"%)":""}</span><span class="sum-value sum-discount">-${fn(discountAmt)}</span></div>`:""}
+        ${(quote.shipping||0)>0?`<div class="sum-row"><span class="sum-label">Envío/Flete</span><span class="sum-value">${fn(quote.shipping)}</span></div>`:""}
+        <div class="sum-row"><span class="sum-label">IVA (${quote.tax}%)</span><span class="sum-value">${fn(taxAmt)}</span></div>
+        <div class="sum-row sum-total"><span>TOTAL</span><span>${fn(total)}</span></div>
+      </div>
+    </div>
+    
+    ${quote.notes?`<div class="notes-box"><div class="notes-label">⚠ Notas y Condiciones Adicionales</div><div class="notes-text">${quote.notes}</div></div>`:""}
+    ${company.footerNote?`<div class="footer">${company.footerNote}</div>`:""}
+  </div></body></html>`;
+}
+
+function exportPDF(quote, company) {
+  const html = buildPDFHtml(quote, company);
+  const old = document.getElementById('__pdfov');
+  if(old) old.remove();
+  const ov = document.createElement('div');
+  ov.id = '__pdfov';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;background:#1e293b;';
+  const bar = document.createElement('div');
+  bar.style.cssText = 'background:#1e40af;padding:10px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;';
+  bar.innerHTML = `
+    <button id="__pdfclose" style="background:rgba(255,255,255,.15);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-family:sans-serif;">✕ Cerrar</button>
+    <button id="__pdfprint" style="background:#fff;color:#1e40af;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700;font-family:sans-serif;">🖨 Imprimir / Guardar PDF</button>
+    <span style="color:rgba(255,255,255,.65);font-size:12px;font-family:sans-serif;">En el diálogo elige <b style="color:#fff">"Guardar como PDF"</b></span>`;
+  const fr = document.createElement('iframe');
+  fr.style.cssText = 'flex:1;border:none;background:#fff;';
+  ov.appendChild(bar); ov.appendChild(fr);
+  document.body.appendChild(ov);
+  fr.contentDocument.open(); fr.contentDocument.write(html); fr.contentDocument.close();
+  document.getElementById('__pdfclose').onclick = () => ov.remove();
+  document.getElementById('__pdfprint').onclick = () => fr.contentWindow.print();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 9 — ENVÍO DE EMAIL (EmailJS)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function sendQuoteEmail(quote, company) {
+  const cfg = window.EMAILJS_CONFIG;
+  if (!cfg || cfg.publicKey === "TU_EMAILJS_PUBLIC_KEY") {
+    console.warn("EmailJS no configurado");
+    return { ok: false, error: "EmailJS no configurado" };
+  }
+  try {
+    emailjs.init(cfg.publicKey);
+    const sub = quote.items.reduce((s,i) => s + i.qty * i.unitPrice, 0);
+    const discountAmt = quote.discountPct > 0 ? sub * (quote.discountPct / 100) : (quote.discount || 0);
+    const taxAmt = (sub - discountAmt) * (quote.tax / 100);
+    const total = sub - discountAmt + taxAmt + (quote.shipping || 0);
+    const itemsList = quote.items.map(it => `• ${it.name} x${it.qty} = $${(it.qty*it.unitPrice).toLocaleString("es-MX")}`).join("\n");
+    await emailjs.send(cfg.serviceId, cfg.templateId, {
+      to_email: cfg.adminEmail,
+      quote_id: quote.id.slice(-6).toUpperCase(),
+      client_name: quote.clientName,
+      client_email: quote.clientEmail || "—",
+      client_phone: quote.clientPhone || "—",
+      items_list: itemsList,
+      subtotal: `$${sub.toLocaleString("es-MX",{minimumFractionDigits:2})}`,
+      discount: discountAmt > 0 ? `-$${discountAmt.toLocaleString("es-MX",{minimumFractionDigits:2})}` : "—",
+      tax: `$${taxAmt.toLocaleString("es-MX",{minimumFractionDigits:2})} (${quote.tax}%)`,
+      total: `$${total.toLocaleString("es-MX",{minimumFractionDigits:2})}`,
+      quote_date: quote.date,
+      company_name: company.name,
+    });
+    return { ok: true };
+  } catch(e) {
+    console.error("EmailJS error:", e);
+    return { ok: false, error: e.text || e.message || "Error al enviar" };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 10 — FILTROS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const DEF_FILTERS = {srch:"",cat:"Todos",subcat:"Todas",brand:"Todas",camType:"Todos",res:"Todas",sort:"none"};
+
+function applyFilters(products, f) {
+  const s = (f.srch||"").toLowerCase();
+  let out = products.filter(p => {
+    if(s && !(p.name.toLowerCase().includes(s)||(p.model||"").toLowerCase().includes(s)||(p.brand||"").toLowerCase().includes(s))) return false;
+    if(f.cat!=="Todos" && p.category!==f.cat) return false;
+    if(f.subcat!=="Todas" && (p.subcategory||"")!==f.subcat) return false;
+    if(f.brand!=="Todas" && (p.brand||"")!==f.brand) return false;
+    if(f.camType!=="Todos" && (p.cameraType||"")!==f.camType) return false;
+    if(f.res!=="Todas" && (p.resolution||"")!==f.res) return false;
+    return true;
+  });
+  if(f.sort==="price-desc") out=[...out].sort((a,b)=>(b.price||0)-(a.price||0));
+  else if(f.sort==="price-asc") out=[...out].sort((a,b)=>(a.price||0)-(b.price||0));
+  else if(f.sort==="name-asc") out=[...out].sort((a,b)=>a.name.localeCompare(b.name));
+  return out;
+}
+
+function FiltersBar({products, filters, setF, showSearch=true}) {
+  const brands = uniqVals(products,"brand");
+  const types = uniqVals(products,"cameraType");
+  const ress = uniqVals(products,"resolution");
+  const upd = (k,v) => setF(x=>({...x,[k]:v}));
+  const clear = () => setF({...DEF_FILTERS, srch: showSearch?"":filters.srch});
+  const active = filters.cat!=="Todos"||filters.brand!=="Todas"||filters.camType!=="Todos"||filters.res!=="Todas"||filters.sort!=="none";
+  return (
+    <div className="filters-row" style={{display:"grid",gridTemplateColumns:showSearch?"1.4fr 1fr 1fr 1fr 1fr 1.1fr auto":"1fr 1fr 1fr 1fr 1.1fr auto",gap:8,marginBottom:12,alignItems:"end"}}>
+      {showSearch&&<div className="sw"><Ic d={I.search} s={14}/><input className="inp si" value={filters.srch} onChange={e=>upd("srch",e.target.value)} placeholder="Buscar nombre, modelo o marca..."/></div>}
+      <select className="sel" value={filters.cat} onChange={e=>upd("cat",e.target.value)}><option>Todos</option>{CATS.map(c=><option key={c}>{c}</option>)}</select>
+      <select className="sel" value={filters.brand} onChange={e=>upd("brand",e.target.value)}><option>Todas</option>{brands.map(b=><option key={b}>{b}</option>)}</select>
+      <select className="sel" value={filters.camType} onChange={e=>upd("camType",e.target.value)} disabled={types.length===0}><option>Todos</option>{types.map(t=><option key={t}>{t}</option>)}</select>
+      <select className="sel" value={filters.res} onChange={e=>upd("res",e.target.value)} disabled={ress.length===0}><option>Todas</option>{ress.map(r=><option key={r}>{r}</option>)}</select>
+      <select className="sel" value={filters.sort} onChange={e=>upd("sort",e.target.value)}>
+        <option value="none">Orden: por defecto</option>
+        <option value="price-desc">Precio: mayor a menor</option>
+        <option value="price-asc">Precio: menor a mayor</option>
+        <option value="name-asc">Nombre A → Z</option>
+      </select>
+      <button className="btn bg bsm" onClick={clear} disabled={!active}><Ic d={I.x} s={12}/>Limpiar</button>
+    </div>
+  );
+}
+
+function CategoryFiltersBar({products, filters, setF}) {
+  const subs = uniqVals(products,"subcategory");
+  const brands = uniqVals(products,"brand");
+  const ress = uniqVals(products,"resolution");
+  const upd = (k,v) => setF(x=>({...x,[k]:v}));
+  const clear = () => setF(x=>({...x,srch:"",subcat:"Todas",brand:"Todas",camType:"Todos",res:"Todas",sort:"none"}));
+  const active = filters.srch||filters.subcat!=="Todas"||filters.brand!=="Todas"||filters.res!=="Todas"||filters.sort!=="none";
+  return (
+    <div className="filters-row" style={{display:"grid",gridTemplateColumns:`1.6fr 1.2fr 1fr ${ress.length>0?"1fr ":""}1.1fr auto`,gap:8,marginBottom:12,alignItems:"end"}}>
+      <div className="sw"><Ic d={I.search} s={14}/><input className="inp si" value={filters.srch} onChange={e=>upd("srch",e.target.value)} placeholder="Buscar nombre, modelo o marca..."/></div>
+      <select className="sel" value={filters.subcat} onChange={e=>upd("subcat",e.target.value)} disabled={subs.length===0}><option>Todas</option>{subs.map(s=><option key={s}>{s}</option>)}</select>
+      <select className="sel" value={filters.brand} onChange={e=>upd("brand",e.target.value)} disabled={brands.length===0}><option>Todas</option>{brands.map(b=><option key={b}>{b}</option>)}</select>
+      {ress.length>0&&<select className="sel" value={filters.res} onChange={e=>upd("res",e.target.value)}><option>Todas</option>{ress.map(r=><option key={r}>{r}</option>)}</select>}
+      <select className="sel" value={filters.sort} onChange={e=>upd("sort",e.target.value)}>
+        <option value="none">Orden: por defecto</option>
+        <option value="price-desc">Precio: mayor a menor</option>
+        <option value="price-asc">Precio: menor a mayor</option>
+        <option value="name-asc">Nombre A → Z</option>
+      </select>
+      <button className="btn bg bsm" onClick={clear} disabled={!active}><Ic d={I.x} s={12}/>Limpiar</button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 11 — PANTALLA DE LOGIN
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// LoginScreen — puede usarse como pantalla completa o como modal overlay
+function LoginScreen({onGuestAccess, asModal=false}) {
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const doLogin = async e => {
+    e.preventDefault();
+    if(!email||!pass) return;
+    setBusy(true); setErr("");
+    const res = await login(email, pass);
+    if(!res.ok) { setErr(res.error); setBusy(false); }
+  };
+
+  const box = (
+    <div className="login-box" style={asModal?{position:"relative"}:{}}>
+      {asModal && (
+        <button onClick={onGuestAccess}
+          style={{position:"absolute",top:12,right:12,background:"none",border:"none",cursor:"pointer",color:"var(--txt3)",fontSize:20,lineHeight:1}}
+          title="Cerrar">✕</button>
+      )}
+      <div className="login-logo">
+        <div className="login-logo-ic"><Ic d={I.cam} s={24} stroke="#fff"/></div>
+        <div>
+          <div className="login-title">CCTV Pro</div>
+          <div className="login-sub">Sistema de Cotización</div>
+        </div>
+      </div>
+      <form onSubmit={doLogin}>
+        <div className="fl mb10">
+          <label className="lb">Correo electrónico</label>
+          <input className="inp" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="usuario@empresa.com" autoFocus/>
+        </div>
+        <div className="fl mb10">
+          <label className="lb">Contraseña</label>
+          <input className="inp" type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••"/>
+        </div>
+        {err&&<div style={{padding:"9px 12px",background:"var(--red-dim)",color:"var(--red)",borderRadius:"var(--r)",fontSize:12,marginBottom:12}}>{err}</div>}
+        <button className="btn bp w100" type="submit" disabled={busy} style={{justifyContent:"center",marginBottom:10}}>
+          {busy?"Ingresando...":"Iniciar Sesión"}
+        </button>
+      </form>
+      {asModal && (
+        <button className="btn bg w100" style={{justifyContent:"center",marginTop:4}} onClick={onGuestAccess}>
+          <Ic d={I.back} s={14}/>Volver al catálogo
+        </button>
+      )}
+    </div>
+  );
+
+  if(asModal) {
+    return (
+      <div className="ov" onClick={e=>e.target===e.currentTarget&&onGuestAccess()}>
+        {box}
+      </div>
+    );
+  }
+
+  return (
+    <div className="login-wrap">
+      {box}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 12 — CARRITO (contexto compartido)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CartCtx = createContext(null);
+const useCart = () => useContext(CartCtx);
+
+function CartProvider({children}) {
+  const [items, setItems] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  const add = (product, qty=1) => {
+    setItems(prev => {
+      const ex = prev.find(i => i.productId === product.id);
+      if(ex) return prev.map(i => i.productId===product.id ? {...i, qty: i.qty+qty} : i);
+      return [...prev, {productId:product.id, name:product.name, model:product.model, unit:product.unit, unitPrice:product.price, qty, image:product.image||null}];
+    });
+  };
+  const remove = id => setItems(prev => prev.filter(i => i.productId !== id));
+  const updateQty = (id, qty) => { if(qty<1) return; setItems(prev => prev.map(i => i.productId===id ? {...i,qty} : i)); };
+  const updatePrice = (id, price) => setItems(prev => prev.map(i => i.productId===id ? {...i,unitPrice:parseFloat(price)||0} : i));
+  const clear = () => setItems([]);
+  const count = items.reduce((s,i) => s+i.qty, 0);
+  const subtotal = items.reduce((s,i) => s+i.qty*i.unitPrice, 0);
+
+  return (
+    <CartCtx.Provider value={{items, add, remove, updateQty, updatePrice, clear, count, subtotal, open, setOpen}}>
+      {children}
+    </CartCtx.Provider>
+  );
+}
+
+// ─── Cart Sidebar ─────────────────────────────────────────────────────────────
+function CartSidebar({company, quotes, setQuotes, clients, onQuoteSaved}) {
+  const { items, remove, updateQty, updatePrice, clear, subtotal, open, setOpen } = useCart();
+  const { user } = useAuth();
+  const [toastEl, showToast] = useToast();
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [notes, setNotes] = useState("");
+  const [sending, setSending] = useState(false);
+  const [step, setStep] = useState("cart"); // cart | form
+
+  // IVA fijo desde configuración de empresa — no editable por cliente/instalador
+  const tax = company.defaultTax || 0;
+
+  // Descuento para instaladores
+  const discountPct = user?.role === "installer" ? (user.discount || 0) : 0;
+  const discountAmt = subtotal * (discountPct / 100);
+  const taxAmt = (subtotal - discountAmt) * (tax / 100);
+  const total = subtotal - discountAmt + taxAmt;
+
+  const canGenerate = items.length > 0 && clientName.trim();
+
+  const doGenerate = async () => {
+    setSending(true);
+    const q = {
+      id: uid(), _ts: Date.now(), date: today(),
+      validUntil: addDays(company.validityDays||15),
+      clientName, clientPhone, clientEmail, clientAddress:"", clientRFC:"",
+      items: [...items], notes, tax,
+      discount: discountAmt, discountPct,
+      shipping: 0, status: "sent",
+      createdBy: user ? user.id : "guest",
+      createdByRole: user ? user.role : "guest",
+    };
+    const newQuotes = [...quotes, q];
+    await setQuotes(newQuotes);
+    const emailRes = await sendQuoteEmail(q, company);
+    exportPDF(q, company);
+    clear(); setStep("cart"); setClientName(""); setClientPhone(""); setClientEmail(""); setNotes("");
+    setOpen(false);
+    if(emailRes.ok) showToast("✓ Cotización generada y enviada por email");
+    else showToast("✓ Cotización generada (email no configurado)", "info");
+    if(onQuoteSaved) onQuoteSaved(q);
+    setSending(false);
+  };
+
+  return (
+    <>
+      {toastEl}
+      <div className={`cart-overlay${open?" open":""}`} onClick={()=>setOpen(false)}/>
+      <div className={`cart-sidebar${open?" open":""}`}>
+        <div style={{padding:"16px 18px",borderBottom:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+          <div style={{fontFamily:"var(--fh)",fontSize:16,fontWeight:800}}>
+            Carrito {items.length>0&&<span style={{background:"var(--acc)",color:"#fff",borderRadius:"50%",width:20,height:20,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:11,marginLeft:6}}>{items.reduce((s,i)=>s+i.qty,0)}</span>}
+          </div>
+          <button className="btn bg bic" onClick={()=>setOpen(false)}><Ic d={I.x} s={15}/></button>
+        </div>
+
+        {step === "cart" ? (
+          <div style={{flex:1,overflowY:"auto",padding:"14px 18px"}}>
+            {items.length===0 ? (
+              <div className="empty" style={{paddingTop:60}}>
+                <Ic d={I.cart} s={40}/><p style={{marginTop:12}}>El carrito está vacío</p>
+                <p style={{fontSize:11,marginTop:4}}>Agrega productos del catálogo</p>
+              </div>
+            ) : (
+              <>
+                {discountPct > 0 && (
+                  <div style={{padding:"8px 12px",background:"var(--grn-dim)",color:"var(--grn)",borderRadius:"var(--r)",fontSize:12,fontWeight:600,marginBottom:12,border:"1px solid rgba(5,150,105,.2)"}}>
+                    🎉 Descuento instalador: {discountPct}% aplicado
+                  </div>
+                )}
+                {items.map(it => (
+                  <div key={it.productId} style={{display:"flex",gap:10,padding:"10px 0",borderBottom:"1px solid var(--b1)",alignItems:"flex-start"}}>
+                    {it.image&&<img src={it.image} style={{width:40,height:40,objectFit:"contain",borderRadius:5,border:"1px solid var(--b1)",flexShrink:0}}/>}
+                    <div style={{flex:1,minWidth:0}}>
+                      <div className="fw6" style={{fontSize:13,lineHeight:1.3}}>{it.name}</div>
+                      <div className="txs t3">{it.model}</div>
+                      <div style={{display:"flex",gap:6,marginTop:6,alignItems:"center"}}>
+                        <input type="number" min="1" value={it.qty} onChange={e=>updateQty(it.productId,parseInt(e.target.value)||1)}
+                          style={{width:52,padding:"3px 6px",border:"1px solid var(--b2)",borderRadius:"var(--r)",fontFamily:"var(--fm)",fontSize:12,textAlign:"center"}}/>
+                        <span className="txs t3">×</span>
+                        <span className="fm" style={{fontSize:12,color:"var(--txt2)"}}>{fmt(it.unitPrice)}</span>
+                      </div>
+                    </div>
+                    <div style={{textAlign:"right",flexShrink:0}}>
+                      <div className="fw7 tc" style={{fontSize:13,fontFamily:"var(--fm)"}}>{fmt(it.qty*it.unitPrice)}</div>
+                      <button className="btn bd bic bsm" style={{marginTop:4}} onClick={()=>remove(it.productId)}><Ic d={I.trash} s={12}/></button>
+                    </div>
+                  </div>
+                ))}
+                <div style={{marginTop:14,padding:"12px 14px",background:"var(--bg4)",borderRadius:"var(--r)",border:"1px solid var(--b1)"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"var(--txt2)",marginBottom:4}}>
+                    <span>Subtotal</span><span className="fm">{fmt(subtotal)}</span>
+                  </div>
+                  {tax>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"var(--txt2)",marginBottom:4}}>
+                    <span>IVA {tax}%</span><span className="fm">{fmt(taxAmt)}</span>
+                  </div>}
+                  <div style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fh)",fontSize:16,fontWeight:800,borderTop:"1px solid var(--b2)",paddingTop:8,marginTop:4}}>
+                    <span>Total</span><span className="tc">{fmt(total)}</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div style={{flex:1,overflowY:"auto",padding:"14px 18px"}}>
+            <div style={{marginBottom:14}}>
+              <div style={{fontFamily:"var(--fh)",fontSize:14,fontWeight:700,marginBottom:12}}>Datos del cliente</div>
+              <div className="fl mb10"><label className="lb">Nombre / Empresa *</label><input className="inp" value={clientName} onChange={e=>setClientName(e.target.value)} placeholder="Juan García"/></div>
+              <div className="fl mb10"><label className="lb">Teléfono</label><input className="inp" value={clientPhone} onChange={e=>setClientPhone(e.target.value)} placeholder="55 1234 5678"/></div>
+              <div className="fl mb10"><label className="lb">Email</label><input className="inp" type="email" value={clientEmail} onChange={e=>setClientEmail(e.target.value)} placeholder="correo@..."/></div>
+              <div className="fl"><label className="lb">Notas</label><textarea className="ta" style={{minHeight:120,resize:"vertical"}} value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Condiciones, garantía..."/></div>
+            </div>
+            <div style={{padding:"12px 14px",background:"var(--bg4)",borderRadius:"var(--r)",border:"1px solid var(--b1)",marginBottom:14}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"var(--txt2)",marginBottom:4}}>
+                <span>Subtotal</span><span className="fm">{fmt(subtotal)}</span>
+              </div>
+              {tax>0&&<div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"var(--txt2)",marginBottom:4}}>
+                <span>IVA {tax}%</span><span className="fm">{fmt(taxAmt)}</span>
+              </div>}
+              <div style={{display:"flex",justifyContent:"space-between",fontFamily:"var(--fh)",fontSize:16,fontWeight:800,borderTop:"1px solid var(--b2)",paddingTop:8,marginTop:4}}>
+                <span>Total</span><span className="tc">{fmt(total)}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div style={{padding:"14px 18px",borderTop:"1px solid var(--b1)",flexShrink:0,display:"flex",flexDirection:"column",gap:8}}>
+          {items.length > 0 && step === "cart" && (
+            <button className="btn bp w100" style={{justifyContent:"center"}} onClick={()=>setStep("form")}>
+              <Ic d={I.arrow} s={14}/>Continuar con cotización
+            </button>
+          )}
+          {step === "form" && (
+            <>
+              <button className="btn bp w100" style={{justifyContent:"center"}} disabled={!canGenerate||sending} onClick={doGenerate}>
+                <Ic d={I.pdf} s={14}/>{sending?"Generando...":"Generar PDF y Enviar"}
+              </button>
+              <button className="btn bg w100" style={{justifyContent:"center"}} onClick={()=>setStep("cart")}>
+                <Ic d={I.back} s={14}/>Volver al carrito
+              </button>
+            </>
+          )}
+          {items.length > 0 && (
+            <button className="btn bd w100" style={{justifyContent:"center"}} onClick={clear}>
+              <Ic d={I.trash} s={14}/>Vaciar carrito
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 13 — CATÁLOGO PÚBLICO (vista para guest e installer)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function PublicCatalog({products, company, quotes, setQuotes, clients}) {
+  const { user } = useAuth();
+  const { add, count, setOpen } = useCart();
+  const [filters, setFilters] = useState({...DEF_FILTERS});
+  const [selectedCat, setSelectedCat] = useState(null);
+  const [toastEl, showToast] = useToast();
+
+  const allCats = [...CATS, "Otro"];
+  const buckets = allCats.map(c=>({cat:c, items:products.filter(p=>p.category===c)})).filter(b=>b.items.length>0);
+
+  const handleAdd = (p) => {
+    const pr = getPriceForRole(p, user);
+    // Agregar al carrito con el precio que corresponde al rol
+    const productWithRolePrice = {...p, price: pr.display};
+    add(productWithRolePrice);
+    showToast(`✓ ${p.model||p.name} agregado al carrito`);
+  };
+
+  return (
+    <div className="page">
+      {toastEl}
+      <div className="ph">
+        <div>
+          <div className="pt">Catálogo de <span>Productos</span></div>
+          <div className="ps">{products.length} productos disponibles{user?.role==="installer"&&user.discount>0&&<span style={{color:"var(--grn)",marginLeft:8,fontWeight:600}}>· {user.discount}% descuento aplicado</span>}</div>
+        </div>
+      </div>
+      
+      {/* Botón flotante del carrito */}
+      <button className="floating-cart-btn" onClick={()=>setOpen(true)} title="Ver Carrito">
+        🛒
+        {count>0&&<span className="floating-cart-badge">{count}</span>}
+      </button>
+
+      {!selectedCat ? (
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:14}}>
+          {buckets.length===0 ? (
+            <div className="card empty" style={{gridColumn:"1/-1"}}><p>Sin productos en el catálogo</p></div>
+          ) : buckets.map(b => {
+            const minP = Math.min(...b.items.map(x=>x.price||0));
+            const maxP = Math.max(...b.items.map(x=>x.price||0));
+            const brs = uniqVals(b.items,"brand");
+            return (
+              <div key={b.cat} onClick={()=>{setSelectedCat(b.cat);setFilters({...DEF_FILTERS});}}
+                style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:"var(--r2)",padding:"18px 20px",cursor:"pointer",transition:"all .15s",position:"relative",overflow:"hidden"}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--acc)";e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="var(--acc-glow)";}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--b1)";e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="";}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                  <CatBadge cat={b.cat}/>
+                  <Ic d={I.arrow} s={16}/>
+                </div>
+                <div style={{fontFamily:"var(--fh)",fontSize:18,fontWeight:800,marginBottom:4}}>{b.cat}</div>
+                <div style={{fontSize:12,color:"var(--txt2)",marginBottom:11}}>{b.items.length} productos{brs.length>0?` · ${brs.length} marca(s)`:""}</div>
+                <div style={{fontSize:11,color:"var(--txt3)",fontFamily:"var(--fm)"}}>
+                  Desde <span className="tc fw7">{fmt(minP)}</span> hasta <span className="tc fw7">{fmt(maxP)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        (() => {
+          const inCat = products.filter(p=>p.category===selectedCat);
+          const filtered = applyFilters(inCat, {...filters, cat:"Todos"});
+          return (
+            <>
+              <div className="ph" style={{marginBottom:14}}>
+                <div style={{display:"flex",alignItems:"center",gap:14}}>
+                  <button className="btn bg bsm" onClick={()=>setSelectedCat(null)}><Ic d={I.back} s={13}/>Categorías</button>
+                  <div>
+                    <div className="pt">{selectedCat}</div>
+                    <div className="ps">{filtered.length} de {inCat.length} productos</div>
+                  </div>
+                </div>
+              </div>
+              <div className="card" style={{marginBottom:14}}>
+                <CategoryFiltersBar products={inCat} filters={filters} setF={setFilters}/>
+              </div>
+              {filtered.length===0 ? (
+                <div className="card empty"><p>Sin productos que coincidan</p></div>
+              ) : (
+                <div className="cat-grid">
+                  {filtered.map(p => {
+                    const pr = getPriceForRole(p, user);
+                    return (
+                      <div key={p.id} className="prod-card">
+                        <div className="prod-card-img">
+                          {p.image ? <img src={p.image} style={{maxHeight:110,maxWidth:"100%",objectFit:"contain"}}/> : <Ic d={I.cam} s={40} stroke="var(--b2)"/>}
+                        </div>
+                        <div className="prod-card-body">
+                          <CatBadge cat={p.category}/>
+                          {/* Nombre corto: modelo + marca */}
+                          <div className="prod-card-name" style={{marginTop:6}}>{p.model||p.name}{p.brand&&<span style={{fontWeight:400,color:"var(--txt3)"}}> · {p.brand}</span>}</div>
+                          {/* Descripción larga debajo */}
+                          {p.description&&<div style={{fontSize:10,color:"var(--txt3)",lineHeight:1.4,marginBottom:6,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{p.description}</div>}
+                          {!p.description&&p.name!==p.model&&<div className="prod-card-model">{p.name}</div>}
+                          {/* Precios */}
+                          {pr.isAdmin ? (
+                            <div style={{marginBottom:4}}>
+                              <div style={{display:"flex",alignItems:"baseline",gap:6}}>
+                                <div className="prod-card-price">{fmt(pr.display)}</div>
+                                <span style={{fontSize:10,color:"var(--txt3)",fontFamily:"var(--fm)"}}>instalador</span>
+                              </div>
+                              {pr.hasDualPrice && (
+                                <div style={{display:"flex",alignItems:"baseline",gap:6,marginTop:2}}>
+                                  <div style={{fontSize:13,fontWeight:700,color:"var(--grn)",fontFamily:"var(--fh)"}}>{fmt(pr.publicPrice)}</div>
+                                  <span style={{fontSize:10,color:"var(--txt3)",fontFamily:"var(--fm)"}}>público</span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div style={{marginBottom:4}}>
+                              <div className="prod-card-price">{fmt(pr.display)}</div>
+                            </div>
+                          )}
+                          <button className="btn bp cart-btn bsm" onClick={()=>handleAdd(p)}>
+                            <Ic d={I.cart} s={13}/>Agregar al carrito
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          );
+        })()
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 14 — DASHBOARD (admin)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function Dashboard({products, quotes, clients, setView}) {
+  const sent = quotes.filter(q=>q.status==="sent");
+  const rev = sent.reduce((s,q)=>{
+    const sub=q.items.reduce((a,i)=>a+i.qty*i.unitPrice,0);
+    const disc=q.discountPct>0?sub*(q.discountPct/100):(q.discount||0);
+    return s+(sub-disc)*(1+q.tax/100)+(q.shipping||0);
+  },0);
+  const recent = [...quotes].sort((a,b)=>b._ts-a._ts).slice(0,6);
+  return (
+    <div className="page">
+      <div className="ph"><div><div className="pt">Panel <span>Principal</span></div><div className="ps">Vista general de tu negocio</div></div></div>
+      <div className="sg">
+        <div className="sc bl"><div className="sl">Cotizaciones</div><div className="sv">{quotes.length}</div><div className="ss">totales</div></div>
+        <div className="sc gr"><div className="sl">Enviadas</div><div className="sv">{sent.length}</div><div className="ss">al cliente</div></div>
+        <div className="sc yl"><div className="sl">Facturación est.</div><div className="sv" style={{fontSize:17}}>{fmt(rev)}</div><div className="ss">cots. enviadas</div></div>
+        <div className="sc rd"><div className="sl">Clientes</div><div className="sv">{clients.length}</div><div className="ss">registrados</div></div>
+      </div>
+      <div className="card">
+        <div className="ch"><div className="ct">Cotizaciones recientes</div><button className="btn bg bsm" onClick={()=>setView("quotes")}>Ver todas</button></div>
+        {recent.length===0?<div className="empty"><p>Sin cotizaciones aún</p></div>:
+        <table><thead><tr><th>#</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Origen</th><th style={{textAlign:"right"}}>Total</th></tr></thead>
+        <tbody>{recent.map(q=>{
+          const sub=q.items.reduce((s,i)=>s+i.qty*i.unitPrice,0);
+          const disc=q.discountPct>0?sub*(q.discountPct/100):(q.discount||0);
+          const total=(sub-disc)*(1+q.tax/100)+(q.shipping||0);
+          return <tr key={q.id}>
+            <td className="fm txs t3">#{q.id.slice(-6).toUpperCase()}</td>
+            <td className="fw6">{q.clientName}</td>
+            <td className="ts t2">{q.date}</td>
+            <td><span style={{fontSize:11,color:q.status==="sent"?"var(--grn)":"var(--ylw)",fontFamily:"var(--fm)"}}>{q.status==="sent"?"● Enviada":"○ Borrador"}</span></td>
+            <td><span className="badge bo" style={{fontSize:10}}>{q.createdByRole==="installer"?"Instalador":q.createdByRole==="guest"?"Visitante":"Admin"}</span></td>
+            <td className="fm fw6 tc" style={{textAlign:"right"}}>{fmt(total)}</td>
+          </tr>;
+        })}</tbody></table>}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 15 — INVENTARIO (admin)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ProductModal({initial, onSave, onClose}) {
+  // Si initial tiene id, es edición; si no, es creación
+  const isEdit = initial && initial.id;
+  const defaultCategory = initial?.category || "Cámaras";
+  
+  const [f,setF]=useState(initial||{name:"",model:"",brand:"",cameraType:"",resolution:"",category:defaultCategory,unit:"pza",price:"",image:null,subcategory:""});
+  const s=(k,v)=>setF(x=>({...x,[k]:v}));
+  
+  const handleSave = () => {
+    onSave({...f,price:parseFloat(f.price)||0});
+  };
+  
+  return (
+    <Modal onClose={onClose}>
+      <div className="mt2">{isEdit?"Editar Producto":"Nuevo Producto"}</div>
+      <div className="gr gr2">
+        <div className="fl"><label className="lb">Nombre*</label><input className="inp" value={f.name} onChange={e=>s("name",e.target.value)} placeholder="Cámara Domo 2MP..."/></div>
+        <div className="fl"><label className="lb">Modelo / SKU</label><input className="inp" value={f.model} onChange={e=>s("model",e.target.value)} placeholder="IPC-HDW2831T"/></div>
+      </div>
+      <div className="gr gr3">
+        <div className="fl"><label className="lb">Categoría</label>
+          <select className="sel" value={f.category} onChange={e=>s("category",e.target.value)}>{CATS.map(c=><option key={c}>{c}</option>)}</select>
+        </div>
+        <div className="fl"><label className="lb">Marca</label><input className="inp" value={f.brand||""} onChange={e=>s("brand",e.target.value)} placeholder="Hikvision, Dahua..."/></div>
+        <div className="fl"><label className="lb">Unidad</label>
+          <select className="sel" value={f.unit} onChange={e=>s("unit",e.target.value)}>
+            {["pza","rollo","mt","hr","kit","servicio","lote"].map(u=><option key={u}>{u}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="gr gr3">
+        <div className="fl"><label className="lb">Tipo de cámara</label><input className="inp" value={f.cameraType||""} onChange={e=>s("cameraType",e.target.value)} placeholder="Bala, Domo, PTZ..."/></div>
+        <div className="fl"><label className="lb">Resolución</label><input className="inp" value={f.resolution||""} onChange={e=>s("resolution",e.target.value)} placeholder="2MP, 4K..."/></div>
+        <div className="fl"><label className="lb">Precio ($)*</label>
+          <input className="inp" type="number" min="0" step="0.01" value={f.price} onChange={e=>s("price",e.target.value)}/>
+        </div>
+      </div>
+      <div className="fl mb10"><label className="lb">Imagen del producto (opcional)</label>
+        <ImgUpload value={f.image} onChange={v=>s("image",v)}/>
+      </div>
+      <div className="mf">
+        <button className="btn bg" onClick={onClose}>Cancelar</button>
+        <button className="btn bp" disabled={!f.name.trim()} onClick={handleSave}><Ic d={I.check} s={14}/>Guardar</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── JSON Import Modal ────────────────────────────────────────────────────────
+function ImportJSONModal({existing, onConfirm, onClose}) {
+  const [parsed,setParsed]=useState(null);
+  const [err,setErr]=useState("");
+  const [busy,setBusy]=useState(false);
+  const ref=useRef();
+
+  const handle = async e => {
+    const f = e.target.files[0]; if(!f) return;
+    setBusy(true); setErr("");
+    try {
+      const text = await f.text();
+      const items = JSON.parse(text);
+      if(!Array.isArray(items)) throw new Error("El archivo no contiene un array de productos");
+      if(items.length===0) throw new Error("El archivo está vacío");
+      // Validate basic structure
+      const valid = items.filter(it => it.name && (it.price >= 0 || it.pricePublic >= 0));
+      if(valid.length===0) throw new Error("No se encontraron productos válidos (requieren 'name' y 'price')");
+      const exMap = new Map(existing.map(p=>[p.model?.toLowerCase().trim()||p.name.toLowerCase().trim(), p]));
+      const toAdd=[], toUpdate=[];
+      for(const it of valid) {
+        const k = (it.model||it.name).toLowerCase().trim();
+        if(exMap.has(k)) toUpdate.push({...exMap.get(k), ...it, id:exMap.get(k).id});
+        else toAdd.push(it);
+      }
+      setParsed({items:valid, toAdd, toUpdate});
+    } catch(ex) { setErr("Error: "+ex.message); }
+    setBusy(false);
+  };
+
+  const doConfirm = () => {
+    const exMap = new Map(existing.map(p=>[(p.model||p.name).toLowerCase().trim(), p]));
+    const updated = existing.map(p => {
+      const k = (p.model||p.name).toLowerCase().trim();
+      const m = parsed.toUpdate.find(u => (u.model||u.name).toLowerCase().trim()===k);
+      return m ? {...p,...m,id:p.id} : p;
+    });
+    const added = parsed.toAdd.map(it=>({id:uid(),...it}));
+    onConfirm([...updated,...added], {added:added.length, updated:parsed.toUpdate.length});
+  };
+
+  const withImg = parsed ? parsed.items.filter(p=>p.image).length : 0;
+  const withDualPrice = parsed ? parsed.items.filter(p=>p.pricePublic && p.pricePublic !== p.price).length : 0;
+
+  return (
+    <Modal onClose={onClose} wide={true}>
+      <div className="mt2">Importar Catálogo desde JSON</div>
+      <div style={{fontSize:12,color:"var(--txt2)",marginBottom:14,lineHeight:1.7}}>
+        Importa el archivo <code style={{color:"var(--acc)"}}>catalogo_hikvision.json</code> generado con el script Python.<br/>
+        Incluye <b>productos con imágenes</b> extraídas directamente del Excel de Hikvision.
+      </div>
+      <input ref={ref} type="file" accept=".json" style={{display:"none"}} onChange={handle}/>
+      {!parsed && (
+        <div className="logo-zone" onClick={()=>!busy&&ref.current.click()} style={{padding:"30px 20px"}}>
+          <Ic d={I.upload} s={32}/>
+          <div style={{fontSize:13,color:"var(--txt)",marginTop:10,fontWeight:600}}>{busy?"Procesando...":"Click para seleccionar archivo JSON"}</div>
+          <div style={{fontSize:11,color:"var(--txt3)",marginTop:4}}>catalogo_hikvision.json</div>
+        </div>
+      )}
+      {err && <div style={{padding:"10px 14px",background:"var(--red-dim)",color:"var(--red)",borderRadius:"var(--r)",fontSize:12,marginTop:10}}>{err}</div>}
+      {parsed && (
+        <>
+          <div className="sg" style={{gridTemplateColumns:"1fr 1fr 1fr 1fr",marginBottom:14}}>
+            <div className="sc bl"><div className="sl">Total</div><div className="sv">{parsed.items.length}</div><div className="ss">productos</div></div>
+            <div className="sc gr"><div className="sl">Nuevos</div><div className="sv">{parsed.toAdd.length}</div><div className="ss">se agregarán</div></div>
+            <div className="sc yl"><div className="sl">Actualizan</div><div className="sv">{parsed.toUpdate.length}</div><div className="ss">existentes</div></div>
+            <div className="sc pu"><div className="sl">2 precios</div><div className="sv">{withDualPrice}</div><div className="ss">con precio dual</div></div>
+          </div>
+          <div className="twrap" style={{maxHeight:260,overflowY:"auto",border:"1px solid var(--b1)",borderRadius:"var(--r)"}}>
+            <table>
+              <thead style={{position:"sticky",top:0,background:"var(--bg2)"}}>
+                <tr><th>Img</th><th>Acción</th><th>Producto</th><th>Categoría</th><th style={{textAlign:"right"}}>P. Instalador</th><th style={{textAlign:"right"}}>P. Público</th></tr>
+              </thead>
+              <tbody>
+                {[...parsed.toAdd.slice(0,40), ...parsed.toUpdate.slice(0,20)].map((it,i)=>(
+                  <tr key={i}>
+                    <td style={{width:40}}>
+                      {it.image
+                        ? <img src={it.image} style={{width:34,height:34,objectFit:"contain",borderRadius:4,border:"1px solid var(--b1)"}}/>
+                        : <div style={{width:34,height:34,borderRadius:4,background:"var(--bg4)",border:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"center",opacity:.4}}><Ic d={I.img} s={13}/></div>}
+                    </td>
+                    <td><span className={`badge ${i<parsed.toAdd.slice(0,40).length?"bst":"bg2b"}`} style={{fontSize:10}}>{i<parsed.toAdd.slice(0,40).length?"NUEVO":"ACTUALIZA"}</span></td>
+                    <td><div className="fw6" style={{fontSize:12}}>{it.model||it.name?.slice(0,50)}</div><div className="txs t3">{it.brand}</div></td>
+                    <td><CatBadge cat={it.category||"Otro"}/></td>
+                    <td className="fm fw6 tc" style={{textAlign:"right"}}>{fmt(it.price)}</td>
+                    <td className="fm fw6" style={{textAlign:"right",color:"var(--grn)"}}>{it.pricePublic?fmt(it.pricePublic):"—"}</td>
+                  </tr>
+                ))}
+                {(parsed.toAdd.length+parsed.toUpdate.length)>60 && (
+                  <tr><td colSpan="5" style={{textAlign:"center",color:"var(--txt3)",fontSize:11,padding:8}}>... y {parsed.toAdd.length+parsed.toUpdate.length-60} más (todos se importarán)</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      <div className="mf">
+        <button className="btn bg" onClick={onClose}>Cancelar</button>
+        {parsed && <button className="btn bg" onClick={()=>{setParsed(null);setErr("");}}>Otro archivo</button>}
+        {parsed && <button className="btn bp" onClick={doConfirm}><Ic d={I.check} s={14}/>Confirmar e importar ({parsed.items.length})</button>}
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+function Inventory({products, setProducts, deleteProduct}) {
+  const [modal,setModal]=useState(null);
+  const [impOpen,setImpOpen]=useState(false);
+  const [jsonOpen,setJsonOpen]=useState(false);
+  const [toastEl,showToast]=useToast();
+  const [selectedCat,setSelectedCat]=useState(null);
+  const [filters,setFilters]=useState({...DEF_FILTERS});
+  const [selected,setSelected]=useState(new Set()); // IDs seleccionados para borrado múltiple
+  const [confirmDeleteAll,setConfirmDeleteAll]=useState(false);
+
+  const toggleSelect = id => setSelected(prev => {
+    const n = new Set(prev);
+    n.has(id) ? n.delete(id) : n.add(id);
+    return n;
+  });
+  const toggleSelectAll = (ids) => setSelected(prev => {
+    if(ids.every(id=>prev.has(id))) return new Set();
+    return new Set(ids);
+  });
+
+  const doSave = async form => {
+    console.log("🔵 doSave llamado con:", form);
+    console.log("🔵 modal:", modal);
+    console.log("🔵 productos actuales:", products.length);
+    
+    try {
+      if(modal && modal.id) {
+        // Editar producto existente
+        console.log("✏️ Editando producto existente con id:", modal.id);
+        const updatedProducts = products.map(p=>p.id===modal.id?{...p,...form}:p);
+        console.log("✏️ Productos actualizados:", updatedProducts.length);
+        await setProducts(updatedProducts);
+      } else {
+        // Crear nuevo producto
+        console.log("➕ Creando nuevo producto");
+        const np = {id:uid(),...form};
+        console.log("➕ Nuevo producto:", np);
+        const newProducts = [...products, np];
+        console.log("➕ Total productos después de agregar:", newProducts.length);
+        await setProducts(newProducts);
+      }
+      console.log("✅ Producto guardado exitosamente");
+      setModal(null); // Cerrar modal después de guardar
+      showToast("✓ Producto guardado");
+    } catch(e) {
+      console.error("❌ Error al guardar producto:", e);
+      showToast("❌ Error al guardar producto", "error");
+    }
+  };
+
+  const del = async id => {
+    if(!confirm("¿Eliminar producto?")) return;
+    try {
+      await deleteProduct(id);
+      setSelected(prev=>{const n=new Set(prev);n.delete(id);return n;});
+      showToast("✓ Producto eliminado");
+    } catch(e) {
+      console.error("Error al eliminar:", e);
+      showToast("❌ Error al eliminar producto", "error");
+    }
+  };
+
+  const delSelected = async () => {
+    if(!confirm(`¿Eliminar ${selected.size} producto(s) seleccionado(s)?`)) return;
+    const remaining = products.filter(p=>!selected.has(p.id));
+    await setProducts(remaining);
+    setSelected(new Set());
+    showToast(`✓ ${selected.size} productos eliminados`,"info");
+  };
+
+  const delAll = async () => {
+    await setProducts([]);
+    setSelected(new Set());
+    setConfirmDeleteAll(false);
+    showToast("✓ Todos los productos eliminados","info");
+  };
+
+  const doImport = async (newList, stats) => {
+    await setProducts(newList);
+    setImpOpen(false);
+    showToast(`✓ ${stats.added} agregados, ${stats.updated} actualizados`);
+  };
+
+  const doImportJSON = async (newList, stats) => {
+    await setProducts(newList);
+    setJsonOpen(false);
+    showToast(`✓ JSON importado: ${stats.added} nuevos, ${stats.updated} actualizados`);
+  };
+
+  const allCats = [...CATS,"Otro"];
+  const buckets = allCats.map(c=>({cat:c,items:products.filter(p=>p.category===c)})).filter(b=>b.items.length>0);
+
+  // Detectar si los productos tienen precios duales reales
+  const hasDualPrices = products.some(p => p.pricePublic && p.pricePublic !== p.price);
+
+  return (
+    <div className="page">
+      {toastEl}
+      {modal&&<ProductModal initial={modal} onSave={doSave} onClose={()=>setModal(null)}/>}
+      {impOpen&&<ImportExcelModal existing={products} onConfirm={doImport} onClose={()=>setImpOpen(false)}/>}
+      {jsonOpen&&<ImportJSONModal existing={products} onConfirm={doImportJSON} onClose={()=>setJsonOpen(false)}/>}
+      {confirmDeleteAll&&(
+        <div className="ov">
+          <div className="modal" style={{maxWidth:400}}>
+            <div className="mt2" style={{color:"var(--red)"}}>⚠ Eliminar TODOS los productos</div>
+            <p style={{fontSize:13,color:"var(--txt2)",marginBottom:18}}>Esta acción eliminará los <b>{products.length} productos</b> del catálogo. No se puede deshacer.</p>
+            <div className="mf">
+              <button className="btn bg" onClick={()=>setConfirmDeleteAll(false)}>Cancelar</button>
+              <button className="btn bd" onClick={delAll}><Ic d={I.trash} s={14}/>Sí, eliminar todo</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!hasDualPrices && products.length > 0 && (
+        <div style={{padding:"11px 16px",background:"rgba(217,119,6,.1)",border:"1px solid rgba(217,119,6,.3)",borderRadius:"var(--r)",marginBottom:14,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+          <span style={{fontSize:13,color:"var(--ylw)",flex:1}}>
+            ⚠ Los productos no tienen precio público separado. Importa <b>catalogo_hikvision.json</b> para activar los dos precios (instalador + público).
+          </span>
+          <button className="btn bylw bsm" onClick={()=>setJsonOpen(true)}><Ic d={I.download} s={13}/>Importar JSON ahora</button>
+        </div>
+      )}
+
+      {!selectedCat ? (
+        <>
+          <div className="ph">
+            <div><div className="pt">Catálogo de <span>Productos</span></div><div className="ps">{products.length} productos en total</div></div>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              <button className="btn bg" onClick={()=>setJsonOpen(true)}><Ic d={I.download} s={14}/>Importar JSON</button>
+              <button className="btn bg" onClick={()=>setImpOpen(true)}><Ic d={I.upload} s={14}/>Importar Excel</button>
+              <button className="btn bd bsm" onClick={()=>setConfirmDeleteAll(true)} title="Eliminar todos los productos"><Ic d={I.trash} s={13}/>Eliminar todo</button>
+              <button className="btn bp" onClick={()=>setModal({category:"Cámaras"})}><Ic d={I.plus} s={14}/>Nuevo Producto</button>
+            </div>
+          </div>
+          {buckets.length===0 ? (
+            <div className="card empty"><p>Sin productos. Importa un Excel o crea uno nuevo.</p></div>
+          ) : (
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:14}}>
+              {buckets.map(b=>{
+                const brs=uniqVals(b.items,"brand");
+                const minP=Math.min(...b.items.map(x=>x.price||0));
+                const maxP=Math.max(...b.items.map(x=>x.price||0));
+                return (
+                  <div key={b.cat} onClick={()=>{setSelectedCat(b.cat);setFilters({...DEF_FILTERS});setSelected(new Set());}}
+                    style={{background:"var(--bg2)",border:"1px solid var(--b1)",borderRadius:"var(--r2)",padding:"18px 20px",cursor:"pointer",transition:"all .15s"}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--acc)";e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="var(--acc-glow)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--b1)";e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="";}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                      <CatBadge cat={b.cat}/><Ic d={I.arrow} s={16}/>
+                    </div>
+                    <div style={{fontFamily:"var(--fh)",fontSize:18,fontWeight:800,marginBottom:4}}>{b.cat}</div>
+                    <div style={{fontSize:12,color:"var(--txt2)",marginBottom:11}}>{b.items.length} productos · {brs.length} marca(s)</div>
+                    <div style={{fontSize:11,color:"var(--txt3)",fontFamily:"var(--fm)"}}>
+                      Desde <span className="tc fw7">{fmt(minP)}</span> hasta <span className="tc fw7">{fmt(maxP)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      ) : (
+        (() => {
+          const inCat = products.filter(p=>p.category===selectedCat);
+          const filtered = applyFilters(inCat, {...filters, cat:"Todos"});
+          const filteredIds = filtered.map(p=>p.id);
+          const allSelected = filteredIds.length>0 && filteredIds.every(id=>selected.has(id));
+          return (
+            <>
+              <div className="ph">
+                <div style={{display:"flex",alignItems:"center",gap:14}}>
+                  <button className="btn bg bsm" onClick={()=>{setSelectedCat(null);setSelected(new Set());}}><Ic d={I.back} s={13}/>Categorías</button>
+                  <div><div className="pt">{selectedCat}</div><div className="ps">{filtered.length} de {inCat.length} productos</div></div>
+                </div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  {selected.size>0&&<button className="btn bd bsm" onClick={delSelected}><Ic d={I.trash} s={13}/>Eliminar {selected.size} selec.</button>}
+                  <button className="btn bg" onClick={()=>setJsonOpen(true)}><Ic d={I.download} s={14}/>Importar JSON</button>
+                  <button className="btn bg" onClick={()=>setImpOpen(true)}><Ic d={I.upload} s={14}/>Importar Excel</button>
+                  <button className="btn bp" onClick={()=>setModal({category:selectedCat})}><Ic d={I.plus} s={14}/>Nuevo</button>
+                </div>
+              </div>
+              <div className="card">
+                <CategoryFiltersBar products={inCat} filters={filters} setF={setFilters}/>
+                {filtered.length===0?<div className="empty"><p>Sin productos que coincidan</p></div>:
+                <div className="twrap"><table>
+                  <thead><tr>
+                    <th style={{width:36}}>
+                      <input type="checkbox" checked={allSelected} onChange={()=>toggleSelectAll(filteredIds)}
+                        style={{width:15,height:15,cursor:"pointer"}}/>
+                    </th>
+                    <th></th><th>Producto</th><th>Subcategoría</th><th>Marca</th><th>Resolución</th>
+                    <th style={{textAlign:"right"}}>P. Instalador</th>
+                    <th style={{textAlign:"right"}}>P. Público</th>
+                    <th></th>
+                  </tr></thead>
+                  <tbody>{filtered.map(p=>(
+                    <tr key={p.id} style={{background:selected.has(p.id)?"rgba(220,38,38,.04)":""}}>
+                      <td>
+                        <input type="checkbox" checked={selected.has(p.id)} onChange={()=>toggleSelect(p.id)}
+                          style={{width:15,height:15,cursor:"pointer"}}/>
+                      </td>
+                      <td style={{width:44}}>{p.image?<img src={p.image} className="img-th"/>:<div style={{width:36,height:36,borderRadius:5,background:"var(--bg4)",border:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"center",opacity:.35}}><Ic d={I.img} s={13}/></div>}</td>
+                      <td>
+                        <div className="fw6">{p.model||p.name}</div>
+                        {p.description&&<div className="txs t3" style={{maxWidth:260,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.description}</div>}
+                        {!p.description&&p.name!==p.model&&<div className="txs t3">{p.name}</div>}
+                      </td>
+                      <td className="ts t2">{p.subcategory||p.cameraType||"—"}</td>
+                      <td className="ts t2">{p.brand||"—"}</td>
+                      <td className="ts fm t2">{p.resolution||"—"}</td>
+                      <td className="fm fw6 tc" style={{textAlign:"right"}}>{fmt(p.price)}</td>
+                      <td className="fm fw6" style={{textAlign:"right",color:"var(--grn)"}}>{p.pricePublic?fmt(p.pricePublic):"—"}</td>
+                      <td>
+                        <div style={{display:"flex",gap:5,justifyContent:"flex-end"}}>
+                          <button className="btn bg bic" onClick={()=>setModal(p)}><Ic d={I.edit} s={13}/></button>
+                          <button className="btn bd bic" onClick={()=>del(p.id)}><Ic d={I.trash} s={13}/></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}</tbody>
+                </table></div>}
+              </div>
+            </>
+          );
+        })()
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 16 — CLIENTES (admin)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ClientModal({initial, onSave, onClose}) {
+  const isEdit = initial && initial.id;
+  const [f,setF]=useState(initial||{name:"",phone:"",email:"",address:"",rfc:"",notes:"",discount:0,markup:0});
+  const s=(k,v)=>setF(x=>({...x,[k]:v}));
+  
+  const handleSave = () => {
+    onSave(f);
+  };
+  
+  return (
+    <Modal onClose={onClose}>
+      <div className="mt2">{isEdit?"Editar Cliente":"Nuevo Cliente"}</div>
+      <div className="gr gr2">
+        <div className="fl"><label className="lb">Nombre / Empresa*</label><input className="inp" value={f.name} onChange={e=>s("name",e.target.value)} placeholder="Juan García"/></div>
+        <div className="fl"><label className="lb">Teléfono</label><input className="inp" value={f.phone} onChange={e=>s("phone",e.target.value)} placeholder="55 1234 5678"/></div>
+      </div>
+      <div className="gr gr2">
+        <div className="fl"><label className="lb">Email</label><input className="inp" value={f.email} onChange={e=>s("email",e.target.value)} placeholder="correo@empresa.com"/></div>
+        <div className="fl"><label className="lb">RFC / NIF</label><input className="inp" value={f.rfc} onChange={e=>s("rfc",e.target.value)} placeholder="RFC123456"/></div>
+      </div>
+      <div className="fl mb8"><label className="lb">Dirección</label><input className="inp" value={f.address} onChange={e=>s("address",e.target.value)} placeholder="Calle, Colonia, Ciudad"/></div>
+      <div className="gr gr2">
+        <div className="fl">
+          <label className="lb">Descuento (%)</label>
+          <input className="inp" type="number" min="0" max="100" step="0.5" value={f.discount||0} onChange={e=>s("discount",parseFloat(e.target.value)||0)}/>
+          <span style={{fontSize:10,color:"var(--txt3)",marginTop:3}}>Se resta del precio público</span>
+        </div>
+        <div className="fl">
+          <label className="lb">Incremento (%)</label>
+          <input className="inp" type="number" min="0" max="200" step="0.5" value={f.markup||0} onChange={e=>s("markup",parseFloat(e.target.value)||0)}/>
+          <span style={{fontSize:10,color:"var(--txt3)",marginTop:3}}>Se suma al precio público</span>
+        </div>
+      </div>
+      <div className="fl mb8"><label className="lb">Notas</label><textarea className="ta" value={f.notes} onChange={e=>s("notes",e.target.value)} placeholder="Notas del cliente..." style={{minHeight:100,resize:"vertical"}}/></div>
+      <div className="mf">
+        <button className="btn bg" onClick={onClose}>Cancelar</button>
+        <button className="btn bp" disabled={!f.name.trim()} onClick={handleSave}><Ic d={I.check} s={14}/>Guardar</button>
+      </div>
+    </Modal>
+  );
+}
+
+function Clients({clients, setClients, deleteClient}) {
+  const [modal,setModal]=useState(null);
+  const [srch,setSrch]=useState("");
+  const [toastEl,showToast]=useToast();
+  const filtered=clients.filter(c=>c.name.toLowerCase().includes(srch.toLowerCase())||c.phone?.includes(srch)||c.email?.toLowerCase().includes(srch.toLowerCase()));
+
+  const doSave = async form => {
+    try {
+      if(modal && modal.id) await setClients(clients.map(c=>c.id===modal.id?{...c,...form}:c));
+      else await setClients([...clients,{id:uid(),...form}]);
+      setModal(null);
+      showToast("✓ Cliente guardado");
+    } catch(e) {
+      console.error("Error al guardar cliente:", e);
+      showToast("❌ Error al guardar cliente", "error");
+    }
+  };
+  const del = async id => {
+    if(!confirm("¿Eliminar cliente?")) return;
+    await deleteClient(id); showToast("Cliente eliminado","info");
+  };
+
+  return (
+    <div className="page">
+      {toastEl}
+      {modal&&<ClientModal initial={modal.id?modal:null} onSave={doSave} onClose={()=>setModal(null)}/>}
+      <div className="ph">
+        <div><div className="pt">Mis <span>Clientes</span></div><div className="ps">{clients.length} clientes</div></div>
+        <button className="btn bp" onClick={()=>setModal({})}><Ic d={I.plus} s={14}/>Nuevo Cliente</button>
+      </div>
+      <div className="card">
+        <div className="sw" style={{marginBottom:13}}><Ic d={I.search} s={14}/><input className="inp si" value={srch} onChange={e=>setSrch(e.target.value)} placeholder="Buscar cliente..."/></div>
+        {filtered.length===0?<div className="empty"><p>Sin clientes registrados</p></div>:
+        <div className="twrap"><table>
+          <thead><tr><th>Nombre / Empresa</th><th>Teléfono</th><th>Email</th><th>Descuento</th><th>Incremento</th><th>Dirección</th><th></th></tr></thead>
+          <tbody>{filtered.map(c=>(
+            <tr key={c.id}>
+              <td className="fw6">{c.name}</td>
+              <td className="ts t2 fm">{c.phone||"—"}</td>
+              <td className="ts t2">{c.email||"—"}</td>
+              <td>{c.discount>0?<span className="badge bst">{c.discount}% dto.</span>:<span className="t3 ts">—</span>}</td>
+              <td>{c.markup>0?<span className="badge bg2b">+{c.markup}%</span>:<span className="t3 ts">—</span>}</td>
+              <td className="ts t2" style={{maxWidth:150,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.address||"—"}</td>
+              <td>
+                <div style={{display:"flex",gap:5,justifyContent:"flex-end"}}>
+                  <button className="btn bg bic" onClick={()=>setModal(c)}><Ic d={I.edit} s={13}/></button>
+                  <button className="btn bd bic" onClick={()=>del(c.id)}><Ic d={I.trash} s={13}/></button>
+                </div>
+              </td>
+            </tr>
+          ))}</tbody>
+        </table></div>}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 17 — COTIZACIONES (admin)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function ViewQuoteModal({quote, company, onClose}) {
+  const sub=quote.items.reduce((s,i)=>s+i.qty*i.unitPrice,0);
+  const discountAmt=quote.discountPct>0?sub*(quote.discountPct/100):(quote.discount||0);
+  const taxAmt=(sub-discountAmt)*(quote.tax/100);
+  const total=sub-discountAmt+taxAmt+(quote.shipping||0);
+  return (
+    <Modal onClose={onClose} wide={true}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
+        <div>
+          <div className="mt2" style={{marginBottom:2}}>Cotización #{quote.id.slice(-6).toUpperCase()}</div>
+          <div className="ts t2">{quote.date} · <span style={{color:quote.status==="sent"?"var(--grn)":"var(--ylw)"}}>{quote.status==="sent"?"Enviada":"Borrador"}</span>
+          {quote.createdByRole&&<span className="badge bo" style={{fontSize:10,marginLeft:8}}>{quote.createdByRole==="installer"?"Instalador":quote.createdByRole==="guest"?"Visitante":"Admin"}</span>}
+          </div>
+        </div>
+        <button className="btn bprp bsm" onClick={()=>exportPDF(quote,company)}><Ic d={I.pdf} s={14}/>Exportar PDF</button>
+      </div>
+      <div className="card" style={{marginBottom:12}}>
+        <div className="ct" style={{marginBottom:8}}>Cliente</div>
+        <div className="fw7" style={{fontSize:14}}>{quote.clientName}</div>
+        <div className="ts t2" style={{marginTop:3,lineHeight:1.7}}>
+          {quote.clientPhone&&<span>{quote.clientPhone} · </span>}{quote.clientEmail||""}
+          {quote.clientAddress&&<><br/>{quote.clientAddress}</>}
+          {quote.clientRFC&&<><br/>RFC: {quote.clientRFC}</>}
+        </div>
+      </div>
+      <div className="twrap" style={{marginBottom:12}}>
+        <table><thead><tr><th>Producto</th><th>Cant.</th><th>P. Unit.</th><th style={{textAlign:"right"}}>Total</th></tr></thead>
+        <tbody>{quote.items.map((it,i)=>(
+          <tr key={i}>
+            <td><div style={{display:"flex",alignItems:"center",gap:8}}>
+              {it.image&&<img src={it.image} style={{width:34,height:34,objectFit:"contain",borderRadius:4,border:"1px solid var(--b1)",flexShrink:0}}/>}
+              <div><div className="fw6">{it.name}</div>{it.model&&<div className="txs t3">{it.model}</div>}</div>
+            </div></td>
+            <td className="fm ts">{it.qty} {it.unit}</td>
+            <td className="fm ts">{fmt(it.unitPrice)}</td>
+            <td className="fm fw6 tc" style={{textAlign:"right"}}>{fmt(it.qty*it.unitPrice)}</td>
+          </tr>
+        ))}</tbody></table>
+      </div>
+      <div className="tb2">
+        <div className="tr2"><span className="t2">Subtotal</span><span className="fm">{fmt(sub)}</span></div>
+        {discountAmt>0&&<div className="tr2 tg"><span>Descuento{quote.discountPct>0?` (${quote.discountPct}%)`:""}</span><span className="fm">-{fmt(discountAmt)}</span></div>}
+        {(quote.shipping||0)>0&&<div className="tr2"><span className="t2">Flete</span><span className="fm">{fmt(quote.shipping)}</span></div>}
+        <div className="tr2"><span className="t2">IVA {quote.tax}%</span><span className="fm">{fmt(taxAmt)}</span></div>
+        <div className="tr2 fin"><span>TOTAL</span><span className="fm tc">{fmt(total)}</span></div>
+      </div>
+      {quote.notes&&<div className="card" style={{marginTop:12}}><div className="ct" style={{marginBottom:6}}>Notas</div><div style={{fontSize:12,color:"var(--txt2)",whiteSpace:"pre-wrap"}}>{quote.notes}</div></div>}
+      <div className="mf"><button className="btn bg" onClick={onClose}>Cerrar</button></div>
+    </Modal>
+  );
+}
+
+function NewQuote({products, quotes, setQuotes, clients, company, onSaved, editingQuote}) {
+  const { user } = useAuth();
+  const [cl,setCl]=useState(editingQuote ? {
+    name: editingQuote.clientName,
+    phone: editingQuote.clientPhone || "",
+    email: editingQuote.clientEmail || "",
+    address: editingQuote.clientAddress || "",
+    rfc: editingQuote.clientRFC || ""
+  } : {name:"",phone:"",email:"",address:"",rfc:""});
+  const [selCl,setSelCl]=useState("");
+  const [items,setItems]=useState(editingQuote ? editingQuote.items : []);
+  const [notes,setNotes]=useState(editingQuote ? editingQuote.notes : (company.paymentTerms?`Condiciones de pago: ${company.paymentTerms}`:""));
+  const [tax,setTax]=useState(editingQuote ? editingQuote.tax : (company.defaultTax||16));
+  const [discount,setDiscount]=useState(editingQuote ? (editingQuote.discount || 0) : 0);
+  const [shipping,setShipping]=useState(editingQuote ? (editingQuote.shipping || 0) : 0);
+  const [status,setStatus]=useState(editingQuote ? editingQuote.status : "draft");
+  const [docType,setDocType]=useState(editingQuote ? (editingQuote.docType || "quote") : "quote");
+  const [invoiceNumber,setInvoiceNumber]=useState(editingQuote ? (editingQuote.invoiceNumber || "") : "");
+  const [ps,setPs]=useState("");
+  const [showP,setShowP]=useState(false);
+  const [filters,setFilters]=useState(DEF_FILTERS);
+  const [toastEl,showToast]=useToast();
+  const [sending,setSending]=useState(false);
+
+  const pickCl=id=>{if(!id){setSelCl("");setCl({name:"",phone:"",email:"",address:"",rfc:""});return;}const c=clients.find(x=>x.id===id);if(c){setSelCl(id);setCl({name:c.name,phone:c.phone||"",email:c.email||"",address:c.address||"",rfc:c.rfc||""});}};
+  const fp=applyFilters(products,{...filters,srch:ps||filters.srch});
+  const addItem=p=>{const ex=items.find(i=>i.productId===p.id);if(ex){setItems(items.map(i=>i.productId===p.id?{...i,qty:i.qty+1}:i));}else{setItems([...items,{productId:p.id,name:p.name,model:p.model,unit:p.unit,unitPrice:p.price,qty:1,image:p.image||null}]);}setPs("");setShowP(false);};
+  const updQty=(id,q)=>{if(q<1)return;setItems(items.map(i=>i.productId===id?{...i,qty:q}:i));};
+  const updP=(id,p)=>setItems(items.map(i=>i.productId===id?{...i,unitPrice:parseFloat(p)||0}:i));
+  const rm=id=>setItems(items.filter(i=>i.productId!==id));
+
+  const sub=items.reduce((s,i)=>s+i.qty*i.unitPrice,0);
+  const taxAmt=sub*(tax/100);
+  const total=sub+taxAmt+Number(shipping)-Number(discount);
+  const canSave=cl.name.trim()&&items.length>0;
+
+  const doSave = async () => {
+    setSending(true);
+    
+    if (editingQuote) {
+      // Modo edición: actualizar cotización existente
+      const updatedQuote = {
+        ...editingQuote,
+        clientName:cl.name,
+        clientPhone:cl.phone,
+        clientEmail:cl.email,
+        clientAddress:cl.address,
+        clientRFC:cl.rfc,
+        items,
+        notes,
+        tax:Number(tax),
+        discount:Number(discount),
+        shipping:Number(shipping),
+        status,
+        docType,
+        invoiceNumber: docType === "invoice" ? invoiceNumber : "",
+        _tsUpdated:Date.now()
+      };
+      const updatedQuotes = quotes.map(q => q.id === editingQuote.id ? updatedQuote : q);
+      await setQuotes(updatedQuotes);
+      showToast(docType === "invoice" ? "✓ Factura actualizada" : "✓ Cotización actualizada");
+    } else {
+      // Modo creación: nueva cotización
+      const q={id:uid(),_ts:Date.now(),date:today(),validUntil:addDays(company.validityDays||15),
+        clientName:cl.name,clientPhone:cl.phone,clientEmail:cl.email,clientAddress:cl.address,clientRFC:cl.rfc,
+        items,notes,tax:Number(tax),discount:Number(discount),discountPct:0,shipping:Number(shipping),status,
+        docType,
+        invoiceNumber: docType === "invoice" ? invoiceNumber : "",
+        createdBy:user?.id||"admin",createdByRole:user?.role||"admin"};
+      await setQuotes([...quotes,q]);
+      if(status==="sent") {
+        const emailRes = await sendQuoteEmail(q, company);
+        if(emailRes.ok) showToast(docType === "invoice" ? "✓ Factura guardada y enviada por email" : "✓ Cotización guardada y enviada por email");
+        else showToast(docType === "invoice" ? "✓ Factura guardada (email no configurado)" : "✓ Cotización guardada (email no configurado)","info");
+      } else {
+        showToast(docType === "invoice" ? "✓ Factura guardada como borrador" : "✓ Cotización guardada como borrador");
+      }
+    }
+    
+    setSending(false);
+    setTimeout(()=>onSaved(),800);
+  };
+
+  return (
+    <div className="page">
+      {toastEl}
+      <div className="ph">
+        <div><div className="pt">{editingQuote ? "Editar" : (docType === "invoice" ? "Nueva" : "Nueva")} <span>{docType === "invoice" ? "Factura" : "Cotización"}</span></div><div className="ps">{editingQuote ? `Modifica los datos de la ${docType === "invoice" ? "factura" : "cotización"}` : "Completa los datos y agrega productos"}</div></div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+          <select className="sel" style={{width:140}} value={docType} onChange={e=>setDocType(e.target.value)}>
+            <option value="quote">Cotización</option>
+            <option value="invoice">Factura</option>
+          </select>
+          <select className="sel" style={{width:140}} value={status} onChange={e=>setStatus(e.target.value)}>
+            <option value="draft">Borrador</option><option value="sent">Enviada</option>
+          </select>
+          <button className="btn bp" disabled={!canSave||sending} onClick={doSave}><Ic d={I.check} s={14}/>{sending?"Guardando...":"Guardar"}</button>
+        </div>
+      </div>
+      <div className="stk-mob" style={{display:"grid",gridTemplateColumns:"1fr 305px",gap:16}}>
+        <div>
+          <div className="card" style={{marginBottom:13}}>
+            <div className="ct" style={{marginBottom:12}}>Datos del cliente</div>
+            {docType === "invoice" && (
+              <div className="fl mb10">
+                <label className="lb">Número de Factura*</label>
+                <input className="inp" value={invoiceNumber} onChange={e=>setInvoiceNumber(e.target.value)} placeholder="F-2024-001" style={{fontFamily:"var(--fm)",fontWeight:600}}/>
+              </div>
+            )}
+            {clients.length>0&&(
+              <div className="fl mb10">
+                <label className="lb">Seleccionar cliente registrado (opcional)</label>
+                <select className="sel" value={selCl} onChange={e=>pickCl(e.target.value)}>
+                  <option value="">— Ingresar manualmente —</option>
+                  {clients.map(c=><option key={c.id} value={c.id}>{c.name}{c.phone?` · ${c.phone}`:""}</option>)}
+                </select>
+              </div>
+            )}
+            <div className="gr gr2">
+              <div className="fl"><label className="lb">Nombre / Empresa*</label><input className="inp" value={cl.name} onChange={e=>setCl(x=>({...x,name:e.target.value}))} placeholder="Juan García"/></div>
+              <div className="fl"><label className="lb">Teléfono</label><input className="inp" value={cl.phone} onChange={e=>setCl(x=>({...x,phone:e.target.value}))} placeholder="55 1234 5678"/></div>
+            </div>
+            <div className="gr gr3">
+              <div className="fl"><label className="lb">Email</label><input className="inp" value={cl.email} onChange={e=>setCl(x=>({...x,email:e.target.value}))} placeholder="correo@..."/></div>
+              <div className="fl"><label className="lb">RFC</label><input className="inp" value={cl.rfc} onChange={e=>setCl(x=>({...x,rfc:e.target.value}))} placeholder="RFC"/></div>
+              <div className="fl"><label className="lb">Dirección</label><input className="inp" value={cl.address} onChange={e=>setCl(x=>({...x,address:e.target.value}))} placeholder="Ciudad"/></div>
+            </div>
+          </div>
+          <div className="card" style={{marginBottom:13}}>
+            <div className="ct" style={{marginBottom:12}}>Productos</div>
+            <FiltersBar products={products} filters={filters} setF={setFilters} showSearch={false}/>
+            <div style={{position:"relative",marginBottom:11}}>
+              <div className="sw"><Ic d={I.search} s={14}/><input className="inp si" value={ps} onChange={e=>{setPs(e.target.value);setShowP(true);}} onFocus={()=>setShowP(true)} placeholder="Buscar y agregar producto..."/></div>
+              {showP&&(ps||filters.cat!=="Todos"||filters.brand!=="Todas"||filters.camType!=="Todos"||filters.res!=="Todas")&&(
+                <div style={{position:"absolute",top:"100%",left:0,right:0,background:"var(--bg3)",border:"1px solid var(--b2)",borderRadius:"var(--r)",zIndex:50,maxHeight:280,overflowY:"auto",marginTop:3,boxShadow:"var(--shad)"}}>
+                  <div style={{padding:"6px 12px",fontSize:10,color:"var(--txt3)",fontFamily:"var(--fm)",letterSpacing:"1px",textTransform:"uppercase",borderBottom:"1px solid var(--b1)",position:"sticky",top:0,background:"var(--bg3)"}}>{fp.length} resultado(s)</div>
+                  {fp.length===0?<div style={{padding:"9px 13px",fontSize:12,color:"var(--txt3)"}}>Sin resultados</div>:
+                  fp.slice(0,200).map(p=>(
+                    <div key={p.id} onClick={()=>addItem(p)}
+                      style={{padding:"8px 12px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid var(--b1)",fontSize:13}}
+                      onMouseEnter={e=>e.currentTarget.style.background="var(--bg4)"}
+                      onMouseLeave={e=>e.currentTarget.style.background=""}>
+                      <div style={{display:"flex",alignItems:"center",gap:8,minWidth:0,flex:1}}>
+                        {p.image?<img src={p.image} style={{width:28,height:28,objectFit:"contain",borderRadius:3,border:"1px solid var(--b1)"}}/>:<div style={{width:28,height:28,borderRadius:3,background:"var(--bg4)",border:"1px solid var(--b1)",display:"flex",alignItems:"center",justifyContent:"center",opacity:.4,flexShrink:0}}><Ic d={I.img} s={11}/></div>}
+                        <div style={{minWidth:0}}>
+                          <div className="fw6" style={{whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{p.name}</div>
+                          <div className="txs t3">{[p.category,p.brand,p.cameraType,p.resolution].filter(Boolean).join(" · ")}</div>
+                        </div>
+                      </div>
+                      <span className="fm ts tc" style={{flexShrink:0,marginLeft:8}}>{fmt(p.price)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {items.length===0?<div className="empty" style={{padding:"16px 0"}}><p style={{fontSize:12}}>Busca y agrega productos arriba</p></div>:
+            <>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 78px 118px 33px",gap:7,padding:"0 0 5px",fontSize:9,fontFamily:"var(--fm)",letterSpacing:"1px",textTransform:"uppercase",color:"var(--txt3)"}}>
+                <div>Producto</div><div>Cant.</div><div>P. Unitario</div><div></div>
+              </div>
+              {items.map(it=>(
+                <div key={it.productId} className="qi">
+                  <div style={{display:"flex",alignItems:"center",gap:7}}>
+                    {it.image&&<img src={it.image} style={{width:32,height:32,objectFit:"contain",borderRadius:4,border:"1px solid var(--b1)",flexShrink:0}}/>}
+                    <div><div className="fw6" style={{fontSize:13}}>{it.name}</div><div className="txs t3">{it.model} · {it.unit}</div></div>
+                  </div>
+                  <input className="inp" type="number" min="1" value={it.qty} onChange={e=>updQty(it.productId,parseInt(e.target.value)||1)} style={{padding:"5px 7px",textAlign:"center",fontFamily:"var(--fm)"}}/>
+                  <input className="inp" type="number" min="0" step="0.01" value={it.unitPrice} onChange={e=>updP(it.productId,e.target.value)} style={{padding:"5px 7px",fontFamily:"var(--fm)"}}/>
+                  <button className="btn bd bic" onClick={()=>rm(it.productId)}><Ic d={I.trash} s={12}/></button>
+                </div>
+              ))}
+            </>}
+          </div>
+          <div className="card">
+            <div className="ct" style={{marginBottom:9}}>Notas / Condiciones</div>
+            <textarea className="ta" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Condiciones de pago, garantía, tiempo de entrega..." style={{minHeight:"180px",resize:"vertical"}}/>
+          </div>
+        </div>
+        <div>
+          <div className="card" style={{position:"sticky",top:20}}>
+            <div className="ct" style={{marginBottom:12}}>Resumen</div>
+            <div className="gr gr2" style={{marginBottom:10}}>
+              <div className="fl"><label className="lb">IVA (%)</label><input className="inp" type="number" min="0" max="100" value={tax} onChange={e=>setTax(e.target.value)}/></div>
+              <div className="fl"><label className="lb">Descuento ($)</label><input className="inp" type="number" min="0" value={discount} onChange={e=>setDiscount(e.target.value)}/></div>
+            </div>
+            <div className="fl" style={{marginBottom:14}}>
+              <label className="lb">Envío/Flete ($)</label>
+              <input className="inp" type="number" min="0" value={shipping} onChange={e=>setShipping(e.target.value)}/>
+            </div>
+            <div className="tb2">
+              <div className="tr2"><span className="t2">Subtotal</span><span className="fm">{fmt(sub)}</span></div>
+              {discount>0&&<div className="tr2 tg"><span>Descuento</span><span className="fm">-{fmt(discount)}</span></div>}
+              {shipping>0&&<div className="tr2"><span className="t2">Flete</span><span className="fm">{fmt(shipping)}</span></div>}
+              <div className="tr2"><span className="t2">IVA {tax}%</span><span className="fm">{fmt(taxAmt)}</span></div>
+              <div className="tr2 fin"><span>Total</span><span className="fm tc">{fmt(total)}</span></div>
+            </div>
+            <div style={{marginTop:11,fontSize:11,color:"var(--txt3)",fontFamily:"var(--fm)",marginBottom:9}}>{items.length} producto(s) · {items.reduce((s,i)=>s+i.qty,0)} u.</div>
+            <button className="btn bp w100" disabled={!canSave||sending} onClick={doSave} style={{justifyContent:"center"}}><Ic d={I.check} s={14}/>{sending?"Guardando...":"Guardar Cotización"}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuotesList({quotes, setQuotes, deleteQuote, company, setView, onEdit}) {
+  const [viewing,setViewing]=useState(null);
+  const [srch,setSrch]=useState("");
+  const [docTypeFilter,setDocTypeFilter]=useState("all"); // "all", "quote", "invoice"
+  const [toastEl,showToast]=useToast();
+  const sorted=[...quotes]
+    .filter(q=>q.clientName.toLowerCase().includes(srch.toLowerCase())||q.id.includes(srch))
+    .filter(q=>docTypeFilter==="all"||(q.docType||"quote")===docTypeFilter)
+    .sort((a,b)=>b._ts-a._ts);
+
+  const del = async id => {
+    if(!confirm("¿Eliminar cotización?")) return;
+    await deleteQuote(id); showToast("Cotización eliminada","info");
+  };
+  const toggle = async id => {
+    const up=quotes.map(q=>q.id===id?{...q,status:q.status==="sent"?"draft":"sent"}:q);
+    await setQuotes(up);
+  };
+  
+  const edit = (quote) => {
+    onEdit(quote);
+  };
+
+  return (
+    <div className="page">
+      {toastEl}
+      {viewing&&<ViewQuoteModal quote={viewing} company={company} onClose={()=>setViewing(null)}/>}
+      <div className="ph">
+        <div><div className="pt">Mis <span>Cotizaciones</span></div><div className="ps">{quotes.length} cotizaciones</div></div>
+        <button className="btn bp" onClick={()=>setView("new")}><Ic d={I.plus} s={14}/>Nueva</button>
+      </div>
+      <div className="card">
+        <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:10,marginBottom:13}} className="filters-row">
+          <div className="sw"><Ic d={I.search} s={14}/><input className="inp si" value={srch} onChange={e=>setSrch(e.target.value)} placeholder="Buscar cliente o ID..."/></div>
+          <select className="sel" value={docTypeFilter} onChange={e=>setDocTypeFilter(e.target.value)} style={{width:160}}>
+            <option value="all">Todos los documentos</option>
+            <option value="quote">Solo Cotizaciones</option>
+            <option value="invoice">Solo Facturas</option>
+          </select>
+        </div>
+        {sorted.length===0?<div className="empty"><p>Sin cotizaciones</p></div>:
+        <div className="twrap"><table>
+          <thead><tr><th>#</th><th>Tipo</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th>Origen</th><th style={{textAlign:"right"}}>Total</th><th></th></tr></thead>
+          <tbody>{sorted.map(q=>{
+            const sub=q.items.reduce((s,i)=>s+i.qty*i.unitPrice,0);
+            const disc=q.discountPct>0?sub*(q.discountPct/100):(q.discount||0);
+            const total=(sub-disc)*(1+q.tax/100)+(q.shipping||0);
+            const docType = q.docType || "quote";
+            const docLabel = docType === "invoice" ? "Factura" : "Cotización";
+            return <tr key={q.id}>
+              <td className="fm txs t3">#{q.id.slice(-6).toUpperCase()}</td>
+              <td><span className={`badge ${docType==="invoice"?"bi":"bc"}`} style={{fontSize:10}}>{docLabel}</span></td>
+              <td><div className="fw6">{q.clientName}</div>{q.clientPhone&&<div className="txs t3">{q.clientPhone}</div>}</td>
+              <td className="ts t2">{q.date}</td>
+              <td><span onClick={()=>toggle(q.id)} style={{cursor:"pointer",fontSize:11,color:q.status==="sent"?"var(--grn)":"var(--ylw)",fontFamily:"var(--fm)"}}>{q.status==="sent"?"● Enviada":"○ Borrador"}</span></td>
+              <td><span className="badge bo" style={{fontSize:10}}>{q.createdByRole==="installer"?"Instalador":q.createdByRole==="guest"?"Visitante":"Admin"}</span></td>
+              <td className="fm fw6 tc" style={{textAlign:"right"}}>{fmt(total)}</td>
+              <td>
+                <div style={{display:"flex",gap:5,justifyContent:"flex-end"}}>
+                  <button className="btn bblu bic" title="Editar" onClick={()=>edit(q)}><Ic d={I.edit} s={13}/></button>
+                  <button className="btn bprp bic" title="Ver / PDF" onClick={()=>setViewing(q)}><Ic d={I.eye} s={13}/></button>
+                  <button className="btn bd bic" onClick={()=>del(q.id)}><Ic d={I.trash} s={13}/></button>
+                </div>
+              </td>
+            </tr>;
+          })}</tbody>
+        </table></div>}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 18 — GESTIÓN DE USUARIOS (admin)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function UserModal({initial, onSave, onClose}) {
+  const isEdit = initial && initial.id;
+  const [f,setF]=useState(initial||{name:"",email:"",password:"",role:"installer",discount:0,active:true});
+  const s=(k,v)=>setF(x=>({...x,[k]:v}));
+  
+  const handleSave = () => {
+    onSave(f);
+  };
+  
+  return (
+    <Modal onClose={onClose}>
+      <div className="mt2">{isEdit?"Editar Usuario":"Nuevo Usuario"}</div>
+      <div className="gr gr2">
+        <div className="fl"><label className="lb">Nombre completo*</label><input className="inp" value={f.name} onChange={e=>s("name",e.target.value)} placeholder="Juan García"/></div>
+        <div className="fl"><label className="lb">Email*</label><input className="inp" type="email" value={f.email} onChange={e=>s("email",e.target.value)} placeholder="usuario@empresa.com"/></div>
+      </div>
+      <div className="gr gr2">
+        <div className="fl">
+          <label className="lb">Contraseña{isEdit?" (dejar vacío = no cambiar)":""}</label>
+          <input className="inp" type="password" value={f.password} onChange={e=>s("password",e.target.value)} placeholder={isEdit?"••••••••":"Mínimo 6 caracteres"}/>
+        </div>
+        <div className="fl">
+          <label className="lb">Rol</label>
+          <select className="sel" value={f.role} onChange={e=>s("role",e.target.value)}>
+            <option value="admin">Administrador</option>
+            <option value="installer">Instalador</option>
+          </select>
+        </div>
+      </div>
+      {f.role==="installer"&&(
+        <div className="gr gr2">
+          <div className="fl mb10">
+            <label className="lb">Descuento (%)</label>
+            <input className="inp" type="number" min="0" max="100" value={f.discount||0} onChange={e=>s("discount",parseFloat(e.target.value)||0)} placeholder="0"/>
+            <span style={{fontSize:10,color:"var(--txt3)",marginTop:3}}>Se resta del precio público en sus cotizaciones</span>
+          </div>
+          <div className="fl mb10">
+            <label className="lb">Incremento (%)</label>
+            <input className="inp" type="number" min="0" max="200" value={f.markup||0} onChange={e=>s("markup",parseFloat(e.target.value)||0)} placeholder="0"/>
+            <span style={{fontSize:10,color:"var(--txt3)",marginTop:3}}>Se suma al precio público (si aplica)</span>
+          </div>
+        </div>
+      )}
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+        <input type="checkbox" id="uactive" checked={f.active} onChange={e=>s("active",e.target.checked)} style={{width:16,height:16}}/>
+        <label htmlFor="uactive" style={{fontSize:13,cursor:"pointer"}}>Usuario activo</label>
+      </div>
+      <div className="mf">
+        <button className="btn bg" onClick={onClose}>Cancelar</button>
+        <button className="btn bp" disabled={!f.name.trim()||!f.email.trim()||(!isEdit&&!f.password)} onClick={handleSave}><Ic d={I.check} s={14}/>Guardar</button>
+      </div>
+    </Modal>
+  );
+}
+
+function UsersManager({users, setUsers, deleteUser}) {
+  const [modal,setModal]=useState(null);
+  const [toastEl,showToast]=useToast();
+
+  const doSave = async form => {
+    try {
+      if(modal && modal.id) {
+        const updated = {...modal, ...form};
+        if(!form.password) delete updated.password; // keep existing if blank
+        await setUsers(users.map(u=>u.id===modal.id?updated:u));
+      } else {
+        await setUsers([...users, {id:uid(), ...form}]);
+      }
+      setModal(null); 
+      showToast("✓ Usuario guardado");
+    } catch(e) {
+      console.error("Error al guardar usuario:", e);
+      showToast("❌ Error al guardar usuario", "error");
+    }
+  };
+
+  const del = async id => {
+    if(!confirm("¿Eliminar usuario?")) return;
+    await deleteUser(id); showToast("Usuario eliminado","info");
+  };
+
+  const toggleActive = async (id) => {
+    await setUsers(users.map(u=>u.id===id?{...u,active:!u.active}:u));
+  };
+
+  return (
+    <div className="page">
+      {toastEl}
+      {modal&&<UserModal initial={modal} onSave={doSave} onClose={()=>setModal(null)}/>}
+      <div className="ph">
+        <div><div className="pt">Gestión de <span>Usuarios</span></div><div className="ps">{users.length} usuarios registrados</div></div>
+        <button className="btn bp" onClick={()=>setModal({})}><Ic d={I.plus} s={14}/>Nuevo Usuario</button>
+      </div>
+      <div style={{padding:"12px 16px",background:"var(--ylw-dim)",border:"1px solid rgba(217,119,6,.25)",borderRadius:"var(--r)",marginBottom:16,fontSize:12,color:"var(--ylw)"}}>
+        <b>Nota:</b> En modo local (sin Firebase), las contraseñas se guardan en localStorage. Para producción, configura Firebase Auth para mayor seguridad.
+      </div>
+      <div className="card">
+        {users.length===0?<div className="empty"><p>Sin usuarios</p></div>:
+        <div className="twrap"><table>
+          <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Descuento</th><th>Incremento</th><th>Estado</th><th></th></tr></thead>
+          <tbody>{users.map(u=>(
+            <tr key={u.id}>
+              <td className="fw6">{u.name}</td>
+              <td className="ts t2 fm">{u.email}</td>
+              <td><RoleBadge role={u.role}/></td>
+              <td>{u.role==="installer"&&u.discount>0?<span className="badge bst">{u.discount}% dto.</span>:<span className="t3 ts">—</span>}</td>
+              <td>{u.role==="installer"&&u.markup>0?<span className="badge bg2b">+{u.markup}%</span>:<span className="t3 ts">—</span>}</td>
+              <td>
+                <span onClick={()=>toggleActive(u.id)} style={{cursor:"pointer",fontSize:11,fontFamily:"var(--fm)",color:u.active?"var(--grn)":"var(--txt3)"}}>
+                  {u.active?"● Activo":"○ Inactivo"}
+                </span>
+              </td>
+              <td>
+                <div style={{display:"flex",gap:5,justifyContent:"flex-end"}}>
+                  <button className="btn bg bic" onClick={()=>setModal(u)}><Ic d={I.edit} s={13}/></button>
+                  <button className="btn bd bic" onClick={()=>del(u.id)}><Ic d={I.trash} s={13}/></button>
+                </div>
+              </td>
+            </tr>
+          ))}</tbody>
+        </table></div>}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 19 — CONFIGURACIÓN (admin)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function Settings({company, setCompany}) {
+  const [f,setF]=useState({...company});
+  const [toastEl,showToast]=useToast();
+  const s=(k,v)=>setF(x=>({...x,[k]:v}));
+  const logoRef=useRef();
+  const handleLogo=async e=>{const file=e.target.files[0];if(file)s("logo",await readFileAsDataURL(file));};
+  const doSave=async()=>{await setCompany(f);showToast("✓ Configuración guardada");};
+
+  // EmailJS config state
+  const [ejCfg,setEjCfg]=useState({...window.EMAILJS_CONFIG});
+  const saveEmailJS=()=>{window.EMAILJS_CONFIG={...ejCfg};showToast("✓ EmailJS actualizado (solo esta sesión)","info");};
+
+  return (
+    <div className="page">
+      {toastEl}
+      <div className="ph">
+        <div><div className="pt">Configuración de <span>Empresa</span></div><div className="ps">Logo, datos y valores por defecto</div></div>
+        <button className="btn bp" onClick={doSave}><Ic d={I.check} s={14}/>Guardar cambios</button>
+      </div>
+      <div className="stk-mob" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:15}}>
+        <div className="card">
+          <div className="ct" style={{marginBottom:13}}>Logo de la empresa</div>
+          <input ref={logoRef} type="file" accept="image/*" style={{display:"none"}} onChange={handleLogo}/>
+          {f.logo?(
+            <div style={{display:"flex",alignItems:"center",gap:14}}>
+              <img src={f.logo} style={{width:88,height:88,objectFit:"contain",borderRadius:10,border:"1px solid var(--b1)",background:"var(--bg3)",padding:6}}/>
+              <div>
+                <button className="btn bg bsm" style={{display:"block",marginBottom:7}} onClick={()=>logoRef.current.click()}><Ic d={I.img} s={13}/>Cambiar logo</button>
+                <button className="btn bd bsm" onClick={()=>s("logo",null)}><Ic d={I.x} s={13}/>Eliminar</button>
+              </div>
+            </div>
+          ):(
+            <div className="logo-zone" onClick={()=>logoRef.current.click()}>
+              <Ic d={I.img} s={30}/><div style={{fontSize:12,color:"var(--txt2)",marginTop:7}}>Click para subir tu logo</div>
+              <div style={{fontSize:11,color:"var(--txt3)"}}>PNG, JPG, SVG — 200×200px recomendado</div>
+            </div>
+          )}
+        </div>
+        <div className="card">
+          <div className="ct" style={{marginBottom:13}}>Identidad</div>
+          <div className="fl mb8"><label className="lb">Nombre de la empresa*</label><input className="inp" value={f.name} onChange={e=>s("name",e.target.value)}/></div>
+          <div className="fl mb8"><label className="lb">Slogan</label><input className="inp" value={f.slogan} onChange={e=>s("slogan",e.target.value)} placeholder="Seguridad Profesional"/></div>
+          <div className="fl"><label className="lb">RFC / NIF</label><input className="inp" value={f.rfc} onChange={e=>s("rfc",e.target.value)} placeholder="ABC123456DEF"/></div>
+        </div>
+        <div className="card">
+          <div className="ct" style={{marginBottom:13}}>Contacto</div>
+          <div className="gr gr2">
+            <div className="fl"><label className="lb">Teléfono</label><input className="inp" value={f.phone} onChange={e=>s("phone",e.target.value)}/></div>
+            <div className="fl"><label className="lb">Email</label><input className="inp" value={f.email} onChange={e=>s("email",e.target.value)}/></div>
+          </div>
+          <div className="fl"><label className="lb">Dirección</label><input className="inp" value={f.address} onChange={e=>s("address",e.target.value)}/></div>
+        </div>
+        <div className="card">
+          <div className="ct" style={{marginBottom:13}}>Valores por defecto</div>
+          <div className="gr gr2">
+            <div className="fl"><label className="lb">IVA por defecto (%)</label><input className="inp" type="number" min="0" max="100" value={f.defaultTax} onChange={e=>s("defaultTax",parseInt(e.target.value)||0)}/></div>
+            <div className="fl"><label className="lb">Vigencia (días)</label><input className="inp" type="number" min="1" value={f.validityDays} onChange={e=>s("validityDays",parseInt(e.target.value)||15)}/></div>
+          </div>
+          <div className="fl mt12"><label className="lb">Condiciones de pago</label><input className="inp" value={f.paymentTerms} onChange={e=>s("paymentTerms",e.target.value)} placeholder="50% anticipo..."/></div>
+          <div className="fl mt12"><label className="lb">Nota de pie de cotización</label><textarea className="ta" style={{minHeight:100,resize:"vertical"}} value={f.footerNote} onChange={e=>s("footerNote",e.target.value)} placeholder="Garantía, términos y condiciones..."/></div>
+        </div>
+      </div>
+
+      {/* EmailJS Config */}
+      <div className="card" style={{marginTop:15}}>
+        <div className="ct" style={{marginBottom:13}}>Configuración de Email (EmailJS)</div>
+        <div style={{fontSize:12,color:"var(--txt2)",marginBottom:14,lineHeight:1.7}}>
+          Para enviar cotizaciones por email, crea una cuenta gratuita en <a href="https://www.emailjs.com" target="_blank" style={{color:"var(--acc)"}}>emailjs.com</a> y completa estos datos.<br/>
+          También puedes editar directamente el archivo <code style={{color:"var(--acc)"}}>index.html</code> en la sección <code>EMAILJS_CONFIG</code>.
+        </div>
+        <div className="gr gr2">
+          <div className="fl"><label className="lb">Public Key</label><input className="inp" value={ejCfg.publicKey||""} onChange={e=>setEjCfg(x=>({...x,publicKey:e.target.value}))} placeholder="user_xxxxxxxx"/></div>
+          <div className="fl"><label className="lb">Service ID</label><input className="inp" value={ejCfg.serviceId||""} onChange={e=>setEjCfg(x=>({...x,serviceId:e.target.value}))} placeholder="service_xxxxxxxx"/></div>
+        </div>
+        <div className="gr gr2">
+          <div className="fl"><label className="lb">Template ID</label><input className="inp" value={ejCfg.templateId||""} onChange={e=>setEjCfg(x=>({...x,templateId:e.target.value}))} placeholder="template_xxxxxxxx"/></div>
+          <div className="fl"><label className="lb">Email del administrador</label><input className="inp" type="email" value={ejCfg.adminEmail||""} onChange={e=>setEjCfg(x=>({...x,adminEmail:e.target.value}))} placeholder="tu@correo.com"/></div>
+        </div>
+        <button className="btn bblu bsm" onClick={saveEmailJS}><Ic d={I.mail} s={13}/>Aplicar configuración EmailJS</button>
+      </div>
+
+      {/* Firebase Config info */}
+      <div className="card" style={{marginTop:15}}>
+        <div className="ct" style={{marginBottom:10}}>Estado de Firebase</div>
+        <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div style={{width:10,height:10,borderRadius:"50%",background:window.USE_FIREBASE?"var(--grn)":"var(--ylw)",flexShrink:0}}/>
+          <div style={{fontSize:13}}>
+            {window.USE_FIREBASE
+              ? <span style={{color:"var(--grn)"}}>Firebase conectado — datos sincronizados en la nube</span>
+              : <span style={{color:"var(--ylw)"}}>Modo local (localStorage) — edita <code>index.html</code> con tus credenciales de Firebase para activar la nube</span>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECCIÓN 20 — APP ROOT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function AppShell() {
+  const { user, authReady, logout } = useAuth();
+  const data = useData();
+  const [view, setView] = useState("catalog");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [guestMode, setGuestMode] = useState(true); // arranca en modo visitante por defecto
+  const [showLogin, setShowLogin] = useState(false); // modal de login
+  const [editingQuote, setEditingQuote] = useState(null); // cotización en edición
+
+  // Determine effective role
+  const role = user?.role || (guestMode ? "guest" : null);
+
+  // Reset view when role changes
+  useEffect(() => {
+    if(role === "admin") setView("dashboard");
+    else if(role === "installer" || role === "guest") setView("catalog");
+  }, [role]);
+
+  // Cuando el usuario inicia sesión, cerrar el modal
+  useEffect(() => { if(user) setShowLogin(false); }, [user]);
+  
+  // Handler para editar cotización
+  const handleEditQuote = (quote) => {
+    setEditingQuote(quote);
+    setView("new");
+  };
+  
+  // Handler para cuando se guarda una cotización
+  const handleQuoteSaved = () => {
+    setEditingQuote(null);
+    setView("quotes");
+  };
+
+  if(!authReady || data.loading) {
+    return (
+      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
+        <div className="spinner"/>
+        <div style={{fontSize:13,color:"var(--txt3)"}}>Cargando...</div>
+      </div>
+    );
+  }
+
+  // Si no hay rol (no debería pasar con guestMode=true, pero por seguridad)
+  if(!role) {
+    return <LoginScreen onGuestAccess={()=>setGuestMode(true)}/>;
+  }
+
+  const goView = v => { setView(v); setMenuOpen(false); };
+
+  // Navigation items by role
+  const adminNav = [
+    {sec:"Principal"},
+    {id:"dashboard",label:"Dashboard",ic:I.dash},
+    {sec:"Gestión"},
+    {id:"inventory",label:"Catálogo",ic:I.inv},
+    {id:"clients",label:"Clientes",ic:I.users},
+    {sec:"Cotizaciones"},
+    {id:"new",label:"Nueva Cotización",ic:I.plus},
+    {id:"quotes",label:"Mis Cotizaciones",ic:I.quote},
+    {sec:"Sistema"},
+    {id:"users",label:"Usuarios",ic:I.lock},
+    {id:"settings",label:"Configuración",ic:I.settings},
+  ];
+
+  const installerNav = [
+    {sec:"Catálogo"},
+    {id:"catalog",label:"Ver Catálogo",ic:I.inv},
+    {sec:"Mis Cotizaciones"},
+    {id:"myquotes",label:"Mis Cotizaciones",ic:I.quote},
+  ];
+
+  const guestNav = [
+    {sec:"Catálogo"},
+    {id:"catalog",label:"Ver Catálogo",ic:I.inv},
+  ];
+
+  const nav = role==="admin" ? adminNav : role==="installer" ? installerNav : guestNav;
+
+  // My quotes for installer/guest
+  const myQuotes = data.quotes.filter(q => user ? q.createdBy===user.id : q.createdByRole==="guest");
+
+  return (
+    <CartProvider>
+      <div className="app">
+        {/* Sidebar */}
+        <aside className="sb">
+          <div className="sb-logo">
+            {data.company.logo
+              ? <img src={data.company.logo} style={{width:36,height:36,objectFit:"contain",borderRadius:9,border:"1px solid var(--b1)",background:"var(--bg4)",padding:2}}/>
+              : <div className="logo-ic"><Ic d={I.cam} s={17} stroke="#fff"/></div>}
+            <div style={{flex:1,minWidth:0}}>
+              <div className="logo-t">{data.company.name.length>15?data.company.name.slice(0,13)+"…":data.company.name}</div>
+              <div className="logo-s">Cotizador</div>
+            </div>
+            <button className="mob-toggle" onClick={()=>setMenuOpen(o=>!o)} aria-label="Menú">
+              <Ic d={menuOpen?I.x:"M3 12h18 M3 6h18 M3 18h18"} s={20}/>
+            </button>
+          </div>
+
+          <nav className={`nav${menuOpen?" open":""}`}>
+            {/* User info */}
+            <div style={{padding:"10px 11px 6px",marginBottom:4}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",background:"var(--bg4)",borderRadius:"var(--r)"}}>
+                <div style={{width:28,height:28,borderRadius:"50%",background:"var(--acc)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <Ic d={I.user} s={14} stroke="#fff"/>
+                </div>
+                <div style={{minWidth:0,flex:1}}>
+                  <div style={{fontSize:12,fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{user?.name||"Visitante"}</div>
+                  <RoleBadge role={role}/>
+                </div>
+              </div>
+            </div>
+
+            {nav.map((n,i) => n.sec
+              ? <div key={i} className="nav-sec">{n.sec}</div>
+              : <button key={n.id} className={`ni${view===n.id?" on":""}`} onClick={()=>goView(n.id)}>
+                  <Ic d={n.ic} s={15}/>{n.label}
+                </button>
+            )}
+
+            {/* Logout / Login */}
+            <div style={{padding:"8px 9px",marginTop:4}}>
+              {user ? (
+                <button className="ni" onClick={logout} style={{color:"var(--red)"}}>
+                  <Ic d={I.logout} s={15}/>Cerrar sesión
+                </button>
+              ) : (
+                <button className="ni" onClick={()=>setShowLogin(true)} style={{color:"var(--blu)",background:"var(--blu-dim)"}}>
+                  <Ic d={I.lock} s={15}/>Iniciar sesión
+                </button>
+              )}
+            </div>
+          </nav>
+
+          <div style={{padding:"11px 16px",borderTop:"1px solid var(--b1)",fontSize:9,color:"var(--txt3)",fontFamily:"var(--fm)",letterSpacing:1}}>
+            {data.products.length} prods · {data.quotes.length} cots · {data.clients.length} cls
+          </div>
+        </aside>
+
+        {/* Main content */}
+        <main className="main">
+          {/* ADMIN views */}
+          {role==="admin" && view==="dashboard" && <Dashboard products={data.products} quotes={data.quotes} clients={data.clients} setView={setView}/>}
+          {role==="admin" && view==="inventory" && <Inventory products={data.products} setProducts={data.setProducts} deleteProduct={data.deleteProduct}/>}
+          {role==="admin" && view==="clients" && <Clients clients={data.clients} setClients={data.setClients} deleteClient={data.deleteClient}/>}
+          {role==="admin" && view==="new" && <NewQuote products={data.products} quotes={data.quotes} setQuotes={data.setQuotes} clients={data.clients} company={data.company} onSaved={handleQuoteSaved} editingQuote={editingQuote}/>}
+          {role==="admin" && view==="quotes" && <QuotesList quotes={data.quotes} setQuotes={data.setQuotes} deleteQuote={data.deleteQuote} company={data.company} setView={setView} onEdit={handleEditQuote}/>}
+          {role==="admin" && view==="users" && <UsersManager users={data.users} setUsers={data.setUsers} deleteUser={data.deleteUser}/>}
+          {role==="admin" && view==="settings" && <Settings company={data.company} setCompany={data.setCompany}/>}
+          {/* Also allow admin to see catalog */}
+          {role==="admin" && view==="catalog" && <PublicCatalog products={data.products} company={data.company} quotes={data.quotes} setQuotes={data.setQuotes} clients={data.clients}/>}
+
+          {/* INSTALLER views */}
+          {role==="installer" && view==="catalog" && <PublicCatalog products={data.products} company={data.company} quotes={data.quotes} setQuotes={data.setQuotes} clients={data.clients}/>}
+          {role==="installer" && view==="myquotes" && (
+            <div className="page">
+              <div className="ph"><div><div className="pt">Mis <span>Cotizaciones</span></div><div className="ps">{myQuotes.length} cotizaciones generadas</div></div></div>
+              <div className="card">
+                {myQuotes.length===0?<div className="empty"><p>Aún no has generado cotizaciones</p></div>:
+                <div className="twrap"><table>
+                  <thead><tr><th>#</th><th>Cliente</th><th>Fecha</th><th style={{textAlign:"right"}}>Total</th><th></th></tr></thead>
+                  <tbody>{[...myQuotes].sort((a,b)=>b._ts-a._ts).map(q=>{
+                    const sub=q.items.reduce((s,i)=>s+i.qty*i.unitPrice,0);
+                    const disc=q.discountPct>0?sub*(q.discountPct/100):(q.discount||0);
+                    const total=(sub-disc)*(1+q.tax/100)+(q.shipping||0);
+                    return <tr key={q.id}>
+                      <td className="fm txs t3">#{q.id.slice(-6).toUpperCase()}</td>
+                      <td className="fw6">{q.clientName}</td>
+                      <td className="ts t2">{q.date}</td>
+                      <td className="fm fw6 tc" style={{textAlign:"right"}}>{fmt(total)}</td>
+                      <td><button className="btn bprp bic" onClick={()=>exportPDF(q,data.company)}><Ic d={I.pdf} s={13}/></button></td>
+                    </tr>;
+                  })}</tbody>
+                </table></div>}
+              </div>
+            </div>
+          )}
+
+          {/* GUEST views */}
+          {role==="guest" && view==="catalog" && <PublicCatalog products={data.products} company={data.company} quotes={data.quotes} setQuotes={data.setQuotes} clients={data.clients}/>}
+        </main>
+
+        {/* Cart sidebar (for installer and guest) */}
+        {(role==="installer"||role==="guest"||role==="admin") && (
+          <CartSidebar company={data.company} quotes={data.quotes} setQuotes={data.setQuotes} clients={data.clients} onQuoteSaved={()=>{}}/>
+        )}
+
+        {/* Modal de login — se abre desde el botón de la barra lateral */}
+        {showLogin && !user && (
+          <LoginScreen asModal={true} onGuestAccess={()=>setShowLogin(false)}/>
+        )}
+      </div>
+    </CartProvider>
+  );
+}
+
+// ─── Root render ──────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <AuthProvider>
+      <AppShell/>
+    </AuthProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
+</script>
+</body>
+</html>
