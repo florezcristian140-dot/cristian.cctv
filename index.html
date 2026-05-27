@@ -12,6 +12,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -995,26 +997,91 @@ function buildPDFHtml(quote, company) {
   </div></body></html>`;
 }
 
-function exportPDF(quote, company) {
-  const html = buildPDFHtml(quote, company);
-  const old = document.getElementById('__pdfov');
-  if(old) old.remove();
-  const ov = document.createElement('div');
-  ov.id = '__pdfov';
-  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;background:#1e293b;';
-  const bar = document.createElement('div');
-  bar.style.cssText = 'background:#1e40af;padding:10px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;';
-  bar.innerHTML = `
-    <button id="__pdfclose" style="background:rgba(255,255,255,.15);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-family:sans-serif;">✕ Cerrar</button>
-    <button id="__pdfprint" style="background:#fff;color:#1e40af;border:none;padding:8px 20px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700;font-family:sans-serif;">🖨 Imprimir / Guardar PDF</button>
-    <span style="color:rgba(255,255,255,.65);font-size:12px;font-family:sans-serif;">En el diálogo elige <b style="color:#fff">"Guardar como PDF"</b></span>`;
-  const fr = document.createElement('iframe');
-  fr.style.cssText = 'flex:1;border:none;background:#fff;';
-  ov.appendChild(bar); ov.appendChild(fr);
-  document.body.appendChild(ov);
-  fr.contentDocument.open(); fr.contentDocument.write(html); fr.contentDocument.close();
-  document.getElementById('__pdfclose').onclick = () => ov.remove();
-  document.getElementById('__pdfprint').onclick = () => fr.contentWindow.print();
+async function exportPDF(quote, company) {
+  const docType = quote.docType || "quote";
+  const docLabel = docType === "invoice" ? "Factura" : "Cotización";
+  const qid = quote.id.slice(-6).toUpperCase();
+  const docNumber = docType === "invoice" && quote.invoiceNumber ? quote.invoiceNumber : qid;
+  const fileName = `${docLabel}_${docNumber}_${quote.clientName.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+  
+  // Mostrar indicador de carga
+  const loadingDiv = document.createElement('div');
+  loadingDiv.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;';
+  loadingDiv.innerHTML = `
+    <div style="width:50px;height:50px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+    <div style="color:#fff;font-size:16px;font-weight:600;font-family:sans-serif;">Generando PDF...</div>
+    <style>@keyframes spin{to{transform:rotate(360deg);}}</style>`;
+  document.body.appendChild(loadingDiv);
+  
+  try {
+    const html = buildPDFHtml(quote, company);
+    
+    // Crear contenedor temporal
+    const container = document.createElement('div');
+    container.style.cssText = 'position:absolute;left:-9999px;top:0;width:794px;background:#fff;';
+    container.innerHTML = html;
+    document.body.appendChild(container);
+    
+    // Esperar a que las imágenes se carguen
+    const images = container.querySelectorAll('img');
+    await Promise.all(Array.from(images).map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
+    
+    // Capturar el contenido como canvas
+    const canvas = await html2canvas(container.querySelector('.wrap'), {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+    
+    // Crear PDF
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pdfWidth;
+    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+    
+    let heightLeft = imgHeight;
+    let position = 0;
+    
+    // Agregar primera página
+    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pdfHeight;
+    
+    // Agregar páginas adicionales si es necesario
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+    }
+    
+    // Descargar PDF
+    pdf.save(fileName);
+    
+    // Limpiar
+    container.remove();
+    loadingDiv.remove();
+    
+  } catch (error) {
+    console.error('Error generando PDF:', error);
+    loadingDiv.remove();
+    alert('Error al generar el PDF. Por favor intenta de nuevo.');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
